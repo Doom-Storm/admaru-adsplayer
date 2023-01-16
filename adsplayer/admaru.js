@@ -1,14 +1,3925 @@
+
 /**
- * @license
- * Video.js 7.20.3 <http://videojs.com/>
- * Copyright Brightcove, Inc. <https://www.brightcove.com/>
- * Available under Apache License Version 2.0
- * <https://github.com/videojs/video.js/blob/main/LICENSE>
+ * Copyright 2023 Admaru Ad network.
  *
- * Includes vtt.js <https://github.com/mozilla/vtt.js>
- * Available under Apache License Version 2.0
- * <https://github.com/mozilla/vtt.js/blob/main/LICENSE>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * IMA SDK integration plugin for Video.js. For more information see
+ * https://www.github.com/googleads/videojs-ima
  */
+
+          
+                                                                              
+     
+//Videojs-contrib-ads @version 6.9.0 @license Apache-2.0 * Start/
+
+!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t(require("video.js"),require("global/window"),require("global/document")):"function"==typeof define&&define.amd?define(["video.js","global/window","global/document"],t):(e=e||self).videojsContribAds=t(e.videojs,e.window,e.document)}(this,function(e,t,n){"use strict";e=e&&e.hasOwnProperty("default")?e.default:e,t=t&&t.hasOwnProperty("default")?t.default:t,n=n&&n.hasOwnProperty("default")?n.default:n;var a="6.9.0";var o=function(e,t){t.isImmediatePropagationStopped=function(){return!0},t.cancelBubble=!0,t.isPropagationStopped=function(){return!0}},r=function(e,t,n){o(0,n),e.trigger({type:t+n.type,originalEvent:n})},i=function(e,t){e.ads.isInAdMode()&&(e.ads.isContentResuming()?e.ads._contentEnding&&r(e,"content",t):r(e,"ad",t))},s=function(e,t){e.ads.isInAdMode()?e.ads.isContentResuming()?(o(0,t),e.trigger("resumeended")):r(e,"ad",t):e.ads._contentHasEnded||e.ads.stitchedAds()||(r(e,"content",t),e.trigger("readyforpostroll"))},d=function(e,t){if(!("loadstart"===t.type&&!e.ads._hasThereBeenALoadStartDuringPlayerLife||"loadeddata"===t.type&&!e.ads._hasThereBeenALoadedData||"loadedmetadata"===t.type&&!e.ads._hasThereBeenALoadedMetaData))if(e.ads.inAdBreak())r(e,"ad",t);else{if(e.currentSrc()!==e.ads.contentSrc)return;r(e,"content",t)}},l=function(e,t){e.ads.inAdBreak()?r(e,"ad",t):e.ads.isContentResuming()&&r(e,"content",t)};function u(e){"playing"===e.type?i(this,e):"ended"===e.type?s(this,e):"loadstart"===e.type||"loadeddata"===e.type||"loadedmetadata"===e.type?d(this,e):"play"===e.type?l(this,e):this.ads.isInAdMode()&&(this.ads.isContentResuming()?r(this,"content",e):r(this,"ad",e))}var c={},f=function(){!function(n){if(e.dom.isInFrame()&&"function"!=typeof t.__tcfapi){for(var a,o=t,r={};o;){try{if(o.frames.__tcfapiLocator){a=o;break}}catch(e){}if(o===t.top)break;o=o.parent}if(!a)return;t.__tcfapi=function(e,t,n,o){var i=Math.random()+"",s={__tcfapiCall:{command:e,parameter:o,version:t,callId:i}};r[i]=n,a.postMessage(s,"*")},t.addEventListener("message",function(e){var t={};try{t="string"==typeof e.data?JSON.parse(e.data):e.data}catch(e){}var n=t.__tcfapiReturn;n&&"function"==typeof r[n.callId]&&(r[n.callId](n.returnValue,n.success),r[n.callId]=null)},!1)}}(),"function"==typeof t.__tcfapi&&t.__tcfapi("addEventListener",2,function(e,t){t&&(c=e)})},h=function(e,t){return t?encodeURIComponent(e):e},p=function(e,t,n){if(e&&e[n])for(var a=e[n],o=Object.keys(a),r=0;r<o.length;r++){t["{mediainfo."+n+"."+o[r]+"}"]=a[o[r]]}};var g={processMetadataTracks:function(e,t){for(var n=e.textTracks(),a=function(n){"metadata"===n.kind&&(e.ads.cueTextTracks.setMetadataTrackMode(n),t(e,n))},o=0;o<n.length;o++)a(n[o]);n.addEventListener("addtrack",function(e){a(e.track)})},setMetadataTrackMode:function(e){},getSupportedAdCue:function(e,t){return t},isSupportedAdCue:function(e,t){return!0},getCueId:function(e,t){return t.id}},y=function(e,t){return void 0!==t&&e.ads.includedCues[t]},v=function(e,t){void 0!==t&&""!==t&&(e.ads.includedCues[t]=!0)};function m(){!1!==this.ads._shouldBlockPlay&&(this.paused()||(this.ads.debug("Playback was canceled by cancelContentPlay"),this.pause()),this.ads._cancelledPlay=!0)}g.processAdTrack=function(t,n,a,o){t.ads.includedCues={};for(var r=0;r<n.length;r++){var i=n[r],s=this.getSupportedAdCue(t,i);if(!this.isSupportedAdCue(t,i))return void e.log.warn("Skipping as this is not a supported ad cue.",i);var d=this.getCueId(t,i),l=i.startTime;if(y(t,d))return void e.log("Skipping ad already seen with ID "+d);o&&o(t,s,d,l),a(t,s,d,l),v(t,d)}};var A={},S=e;A.isMiddlewareMediatorSupported=function(){return!S.browser.IS_IOS&&!S.browser.IS_ANDROID&&!!(S.use&&S.middleware&&S.middleware.TERMINATOR)},A.playMiddleware=function(t){return{setSource:function(e,t){t(null,e)},callPlay:function(){if(t.ads&&!0===t.ads._shouldBlockPlay)return t.ads.debug("Using playMiddleware to block content playback"),t.ads._playBlocked=!0,S.middleware.TERMINATOR},play:function(n,a){t.ads&&t.ads._playBlocked&&n?(t.ads.debug("Play call to Tech was terminated."),t.trigger("play"),t.addClass("vjs-has-started"),t.ads._playBlocked=!1):a&&a.catch&&a.catch(function(n){"NotAllowedError"!==n.name||e.browser.IS_SAFARI||t.trigger("pause")})}}},A.testHook=function(e){S=e};var _=A.playMiddleware,P=A.isMiddlewareMediatorSupported,b=function(){if(e.getPlugin)return Boolean(e.getPlugin("ads"));var t=e.getComponent("Player");return Boolean(t&&t.prototype.ads)};var k=function(){function e(){}return e.getState=function(t){if(t)return e.states_&&e.states_[t]?e.states_[t]:void 0},e.registerState=function(t,n){if("string"!=typeof t||!t)throw new Error('Illegal state name, "'+t+'"; must be a non-empty string.');return e.states_||(e.states_={}),e.states_[t]=n,n},e}(),C=function(){function t(e){this.player=e}t._getName=function(){return"Anonymous State"};var n=t.prototype;return n.transitionTo=function(e){var t=this.player;this.cleanup(t);var n=new e(t);t.ads._state=n,t.ads.debug(this.constructor._getName()+" -> "+n.constructor._getName());for(var a=arguments.length,o=new Array(a>1?a-1:0),r=1;r<a;r++)o[r-1]=arguments[r];n.init.apply(n,[t].concat(o))},n.init=function(){},n.cleanup=function(){},n.onPlay=function(){},n.onPlaying=function(){},n.onEnded=function(){},n.onAdEnded=function(){},n.onAdsReady=function(){e.log.warn("Unexpected adsready event")},n.onAdsError=function(){},n.onAdsCanceled=function(){},n.onAdTimeout=function(){},n.onAdStarted=function(){},n.onContentChanged=function(){},n.onContentResumed=function(){},n.onReadyForPostroll=function(){e.log.warn("Unexpected readyforpostroll event")},n.onNoPreroll=function(){},n.onNoPostroll=function(){},n.startLinearAdMode=function(){e.log.warn("Unexpected startLinearAdMode invocation (State via "+this.constructor._getName()+")")},n.endLinearAdMode=function(){e.log.warn("Unexpected endLinearAdMode invocation (State via "+this.constructor._getName()+")")},n.skipLinearAdMode=function(){e.log.warn("Unexpected skipLinearAdMode invocation (State via "+this.constructor._getName()+")")},n.isAdState=function(){throw new Error("isAdState unimplemented for "+this.constructor._getName())},n.isWaitingForAdBreak=function(){return!1},n.isContentResuming=function(){return!1},n.inAdBreak=function(){return!1},n.handleEvent=function(e){var t=this.player;"play"===e?this.onPlay(t):"adsready"===e?this.onAdsReady(t):"adserror"===e?this.onAdsError(t):"adscanceled"===e?this.onAdsCanceled(t):"adtimeout"===e?this.onAdTimeout(t):"ads-ad-started"===e?this.onAdStarted(t):"contentchanged"===e?this.onContentChanged(t):"contentresumed"===e?this.onContentResumed(t):"readyforpostroll"===e?this.onReadyForPostroll(t):"playing"===e?this.onPlaying(t):"ended"===e?this.onEnded(t):"nopreroll"===e?this.onNoPreroll(t):"nopostroll"===e?this.onNoPostroll(t):"adended"===e&&this.onAdEnded(t)},t}();function T(e,t){e.prototype=Object.create(t.prototype),e.prototype.constructor=e,e.__proto__=t}k.registerState("State",C);var w=function(e){function t(t){var n;return(n=e.call(this,t)||this).contentResuming=!1,n.waitingForAdBreak=!1,n}T(t,e);var n=t.prototype;return n.isAdState=function(){return!0},n.onPlaying=function(){var e=k.getState("ContentPlayback");this.contentResuming&&this.transitionTo(e)},n.onContentResumed=function(){var e=k.getState("ContentPlayback");this.contentResuming&&this.transitionTo(e)},n.isWaitingForAdBreak=function(){return this.waitingForAdBreak},n.isContentResuming=function(){return this.contentResuming},n.inAdBreak=function(){return!0===this.player.ads._inLinearAdMode},t}(C);k.registerState("AdState",w);var R=function(e){function t(){return e.apply(this,arguments)||this}T(t,e);var n=t.prototype;return n.isAdState=function(){return!1},n.onContentChanged=function(e){var t=k.getState("BeforePreroll"),n=k.getState("Preroll");e.ads.debug("Received contentchanged event (ContentState)"),e.paused()?this.transitionTo(t):(this.transitionTo(n,!1),e.pause(),e.ads._pausedOnContentupdate=!0)},t}(C);k.registerState("ContentState",R);var L,B=function(t){function n(){return t.apply(this,arguments)||this}T(n,t),n._getName=function(){return"AdsDone"};var a=n.prototype;return a.init=function(e){e.ads._contentHasEnded=!0,e.trigger("ended")},a.startLinearAdMode=function(){e.log.warn("Unexpected startLinearAdMode invocation (AdsDone)")},n}(k.getState("ContentState"));k.registerState("AdsDone",B);var M={start:function(t){t.ads.debug("Starting ad break"),t.ads._inLinearAdMode=!0,t.trigger("adstart"),t.ads.shouldTakeSnapshots()&&(t.ads.snapshot=function(t){var n;n=e.browser.IS_IOS&&t.ads.isLive(t)&&t.seekable().length>0?t.currentTime()-t.seekable().end(0):t.currentTime();var a=t.$(".vjs-tech"),o=t.textTracks?t.textTracks():[],r=[],i={ended:t.ended(),currentSrc:t.currentSrc(),sources:t.currentSources(),src:t.tech_.src(),currentTime:n,type:t.currentType()};a&&(i.style=a.getAttribute("style"));for(var s=0;s<o.length;s++){var d=o[s];r.push({track:d,mode:d.mode}),d.mode="disabled"}return i.suppressedTracks=r,i}(t)),t.ads.shouldPlayContentBehindAd(t)&&(t.ads.preAdVolume_=t.volume(),t.volume(0)),t.addClass("vjs-ad-playing"),t.hasClass("vjs-live")&&t.removeClass("vjs-live"),t.ads.removeNativePoster()},end:function(t,n){t.ads.debug("Ending ad break"),void 0===n&&(n=function(){}),t.ads.adType=null,t.ads._inLinearAdMode=!1,t.trigger("adend"),t.removeClass("vjs-ad-playing"),t.ads.isLive(t)&&t.addClass("vjs-live"),t.ads.shouldTakeSnapshots()?function(t,n){var a=t.ads.snapshot;if(void 0===n&&(n=function(){}),!0===t.ads.disableNextSnapshotRestore)return t.ads.disableNextSnapshotRestore=!1,delete t.ads.snapshot,void n();var o,r=t.$(".vjs-tech"),i=20,s=a.suppressedTracks,d=function(){for(var e=0;e<s.length;e++)(o=s[e]).track.mode=o.mode},l=function(){var n;if(e.browser.IS_IOS&&t.ads.isLive(t)){if(a.currentTime<0&&(n=t.seekable().length>0?t.seekable().end(0)+a.currentTime:t.currentTime(),t.currentTime(n)),t.paused()){var o=t.play();o&&o.catch&&o.catch(function(t){e.log.warn("Play promise rejected in IOS snapshot resume",t)})}}else if(a.ended)t.currentTime(t.duration());else{t.currentTime(a.currentTime);var r=t.play();r&&r.catch&&r.catch(function(t){e.log.warn("Play promise rejected in snapshot resume",t)})}t.ads.shouldRemoveAutoplay_&&(t.autoplay(!1),t.ads.shouldRemoveAutoplay_=!1)},u=function n(){if(t.off("contentcanplay",n),L&&t.clearTimeout(L),(r=t.el().querySelector(".vjs-tech")).readyState>1)return l();if(void 0===r.seekable)return l();if(r.seekable.length>0)return l();if(i--)t.setTimeout(n,50);else try{l()}catch(t){e.log.warn("Failed to resume the content after an advertisement",t)}};if("style"in a&&r.setAttribute("style",a.style||""),t.ads.videoElementRecycled())t.one("resumeended",function(){delete t.ads.snapshot,n()}),t.one("contentloadedmetadata",d),e.browser.IS_IOS&&!t.autoplay()&&(t.autoplay(!0),t.ads.shouldRemoveAutoplay_=!0),t.src(a.sources),t.one("contentcanplay",u),L=t.setTimeout(u,2e3);else{if(d(),!t.ended()){var c=t.play();c&&c.catch&&c.catch(function(t){e.log.warn("Play promise rejected in snapshot restore",t)})}delete t.ads.snapshot,n()}}(t,n):(t.volume(t.ads.preAdVolume_),n())}},j=function(t){function n(){return t.apply(this,arguments)||this}T(n,t),n._getName=function(){return"Preroll"};var a=n.prototype;return a.init=function(e,t,n){if(this.waitingForAdBreak=!0,e.addClass("vjs-ad-loading"),n||e.ads.nopreroll_)return this.resumeAfterNoPreroll(e);var a=e.ads.settings.timeout;"number"==typeof e.ads.settings.prerollTimeout&&(a=e.ads.settings.prerollTimeout),this._timeout=e.setTimeout(function(){e.trigger("adtimeout")},a),t?this.handleAdsReady():this.adsReady=!1},a.onAdsReady=function(t){t.ads.inAdBreak()?e.log.warn("Unexpected adsready event (Preroll)"):(t.ads.debug("Received adsready event (Preroll)"),this.handleAdsReady())},a.handleAdsReady=function(){this.adsReady=!0,this.readyForPreroll()},a.afterLoadStart=function(e){var t=this.player;t.ads._hasThereBeenALoadStartDuringPlayerLife?e():(t.ads.debug("Waiting for loadstart..."),t.one("loadstart",function(){t.ads.debug("Received loadstart event"),e()}))},a.noPreroll=function(){var e=this;this.afterLoadStart(function(){e.player.ads.debug("Skipping prerolls due to nopreroll event (Preroll)"),e.resumeAfterNoPreroll(e.player)})},a.readyForPreroll=function(){var e=this.player;this.afterLoadStart(function(){e.ads.debug("Triggered readyforpreroll event (Preroll)"),e.trigger("readyforpreroll")})},a.onAdsCanceled=function(e){var t=this;e.ads.debug("adscanceled (Preroll)"),this.afterLoadStart(function(){t.resumeAfterNoPreroll(e)})},a.onAdsError=function(t){var n=this;e.log("adserror (Preroll)"),this.inAdBreak()?t.ads.endLinearAdMode():this.afterLoadStart(function(){n.resumeAfterNoPreroll(t)})},a.startLinearAdMode=function(){var t=this.player;!this.adsReady||t.ads.inAdBreak()||this.isContentResuming()?e.log.warn("Unexpected startLinearAdMode invocation (Preroll)"):(this.clearTimeout(t),t.ads.adType="preroll",this.waitingForAdBreak=!1,M.start(t),t.ads._shouldBlockPlay=!1)},a.onAdStarted=function(e){e.removeClass("vjs-ad-loading")},a.endLinearAdMode=function(){var e=this.player;this.inAdBreak()&&(e.removeClass("vjs-ad-loading"),e.addClass("vjs-ad-content-resuming"),this.contentResuming=!0,M.end(e))},a.skipLinearAdMode=function(){var t=this,n=this.player;n.ads.inAdBreak()||this.isContentResuming()?e.log.warn("Unexpected skipLinearAdMode invocation"):this.afterLoadStart(function(){n.trigger("adskip"),n.ads.debug("skipLinearAdMode (Preroll)"),t.resumeAfterNoPreroll(n)})},a.onAdTimeout=function(e){var t=this;this.afterLoadStart(function(){e.ads.debug("adtimeout (Preroll)"),t.resumeAfterNoPreroll(e)})},a.onNoPreroll=function(t){t.ads.inAdBreak()||this.isContentResuming()?e.log.warn("Unexpected nopreroll event (Preroll)"):this.noPreroll()},a.resumeAfterNoPreroll=function(e){if(this.contentResuming=!0,e.ads._shouldBlockPlay=!1,this.cleanupPartial(e),e.ads._playRequested||e.ads._pausedOnContentupdate)if(e.paused()){e.ads.debug("resumeAfterNoPreroll: attempting to resume playback (Preroll)");var t=e.play();t&&t.then&&t.then(null,function(e){})}else e.ads.debug("resumeAfterNoPreroll: already playing (Preroll)"),e.trigger("play"),e.trigger("playing")},a.cleanup=function(t){t.ads._hasThereBeenALoadStartDuringPlayerLife||e.log.warn("Leaving Preroll state before loadstart event can cause issues."),this.cleanupPartial(t)},a.cleanupPartial=function(e){e.removeClass("vjs-ad-loading"),e.removeClass("vjs-ad-content-resuming"),this.clearTimeout(e)},a.clearTimeout=function(e){e.clearTimeout(this._timeout),this._timeout=null},n}(k.getState("AdState"));k.registerState("Preroll",j);var I=function(e){function t(){return e.apply(this,arguments)||this}T(t,e),t._getName=function(){return"BeforePreroll"};var n=t.prototype;return n.init=function(e){this.adsReady=!1,this.shouldResumeToContent=!1,e.ads._shouldBlockPlay=!e.ads.settings.allowVjsAutoplay||!e.autoplay()},n.onAdsReady=function(e){e.ads.debug("Received adsready event (BeforePreroll)"),this.adsReady=!0},n.onPlay=function(e){var t=k.getState("Preroll");e.ads.debug("Received play event (BeforePreroll)"),this.transitionTo(t,this.adsReady,this.shouldResumeToContent)},n.onAdsCanceled=function(e){e.ads.debug("adscanceled (BeforePreroll)"),this.shouldResumeToContent=!0},n.onAdsError=function(){this.player.ads.debug("adserror (BeforePreroll)"),this.shouldResumeToContent=!0},n.onNoPreroll=function(){this.player.ads.debug("Skipping prerolls due to nopreroll event (BeforePreroll)"),this.shouldResumeToContent=!0},n.skipLinearAdMode=function(){var e=this.player;e.trigger("adskip"),e.ads.debug("skipLinearAdMode (BeforePreroll)"),this.shouldResumeToContent=!0},n.onContentChanged=function(){this.init(this.player)},t}(k.getState("ContentState"));k.registerState("BeforePreroll",I);var N=function(e){function t(){return e.apply(this,arguments)||this}T(t,e),t._getName=function(){return"Midroll"};var n=t.prototype;return n.init=function(e){e.ads.adType="midroll",M.start(e),e.addClass("vjs-ad-loading")},n.onAdStarted=function(e){e.removeClass("vjs-ad-loading")},n.endLinearAdMode=function(){var e=this.player;this.inAdBreak()&&(this.contentResuming=!0,e.addClass("vjs-ad-content-resuming"),e.removeClass("vjs-ad-loading"),M.end(e))},n.onAdsError=function(e){this.inAdBreak()&&e.ads.endLinearAdMode()},n.cleanup=function(e){e.removeClass("vjs-ad-loading"),e.removeClass("vjs-ad-content-resuming")},t}(k.getState("AdState"));k.registerState("Midroll",N);var E=function(t){function n(){return t.apply(this,arguments)||this}T(n,t),n._getName=function(){return"Postroll"};var a=n.prototype;return a.init=function(e){if(this.waitingForAdBreak=!0,e.ads._contentEnding=!0,e.ads.nopostroll_){this.resumeContent(e);var t=k.getState("AdsDone");this.transitionTo(t)}else{e.addClass("vjs-ad-loading");var n=e.ads.settings.timeout;"number"==typeof e.ads.settings.postrollTimeout&&(n=e.ads.settings.postrollTimeout),this._postrollTimeout=e.setTimeout(function(){e.trigger("adtimeout")},n)}},a.startLinearAdMode=function(){var t=this.player;t.ads.inAdBreak()||this.isContentResuming()?e.log.warn("Unexpected startLinearAdMode invocation (Postroll)"):(t.ads.adType="postroll",t.clearTimeout(this._postrollTimeout),this.waitingForAdBreak=!1,M.start(t))},a.onAdStarted=function(e){e.removeClass("vjs-ad-loading")},a.endLinearAdMode=function(){var e=this,t=this.player,n=k.getState("AdsDone");this.inAdBreak()&&(t.removeClass("vjs-ad-loading"),this.resumeContent(t),M.end(t,function(){e.transitionTo(n)}))},a.skipLinearAdMode=function(){var t=this.player;t.ads.inAdBreak()||this.isContentResuming()?e.log.warn("Unexpected skipLinearAdMode invocation"):(t.ads.debug("Postroll abort (skipLinearAdMode)"),t.trigger("adskip"),this.abort(t))},a.onAdTimeout=function(e){e.ads.debug("Postroll abort (adtimeout)"),this.abort(e)},a.onAdsError=function(e){e.ads.debug("Postroll abort (adserror)"),e.ads.inAdBreak()?e.ads.endLinearAdMode():this.abort(e)},a.onContentChanged=function(e){if(this.isContentResuming()){var t=k.getState("BeforePreroll");this.transitionTo(t)}else if(!this.inAdBreak()){var n=k.getState("Preroll");this.transitionTo(n)}},a.onNoPostroll=function(t){this.isContentResuming()||this.inAdBreak()?e.log.warn("Unexpected nopostroll event (Postroll)"):this.abort(t)},a.resumeContent=function(e){this.contentResuming=!0,e.addClass("vjs-ad-content-resuming")},a.abort=function(e){var t=k.getState("AdsDone");this.resumeContent(e),e.removeClass("vjs-ad-loading"),this.transitionTo(t)},a.cleanup=function(e){e.removeClass("vjs-ad-content-resuming"),e.clearTimeout(this._postrollTimeout),e.ads._contentEnding=!1},n}(k.getState("AdState"));k.registerState("Postroll",E);var x=function(e){function t(){return e.apply(this,arguments)||this}T(t,e),t._getName=function(){return"ContentPlayback"};var n=t.prototype;return n.init=function(e){e.ads._shouldBlockPlay=!1},n.onAdsReady=function(e){e.ads.debug("Received adsready event (ContentPlayback)"),e.ads.nopreroll_||(e.ads.debug("Triggered readyforpreroll event (ContentPlayback)"),e.trigger("readyforpreroll"))},n.onReadyForPostroll=function(e){var t=k.getState("Postroll");e.ads.debug("Received readyforpostroll event"),this.transitionTo(t)},n.startLinearAdMode=function(){var e=k.getState("Midroll");this.transitionTo(e)},t}(k.getState("ContentState"));k.registerState("ContentPlayback",x);var D=function(e){function t(){return e.apply(this,arguments)||this}T(t,e),t._getName=function(){return"StitchedContentPlayback"};var n=t.prototype;return n.init=function(){this.player.ads._shouldBlockPlay=!1},n.onContentChanged=function(){this.player.ads.debug("Received contentchanged event ("+this.constructor._getName()+")")},n.startLinearAdMode=function(){var e=k.getState("StitchedAdRoll");this.transitionTo(e)},t}(k.getState("ContentState"));k.registerState("StitchedContentPlayback",D);var O=function(e){function t(){return e.apply(this,arguments)||this}T(t,e),t._getName=function(){return"StitchedAdRoll"};var n=t.prototype;return n.init=function(){this.waitingForAdBreak=!1,this.contentResuming=!1,this.player.ads.adType="stitched",M.start(this.player)},n.onPlaying=function(){},n.onContentResumed=function(){},n.onAdEnded=function(){this.endLinearAdMode(),this.player.trigger("ended")},n.endLinearAdMode=function(){var e=k.getState("StitchedContentPlayback");M.end(this.player),this.transitionTo(e)},t}(k.getState("AdState"));k.registerState("StitchedAdRoll",O);var F=A.isMiddlewareMediatorSupported,U=e.getTech("Html5").Events,V={timeout:5e3,prerollTimeout:void 0,postrollTimeout:void 0,debug:!1,stitchedAds:!1,contentIsLive:void 0,liveCuePoints:!0,allowVjsAutoplay:e.options.normalizeAutoplay||!1},q=function(o){var r=this,i=e.mergeOptions(V,o),s=[];U.concat(["firstplay","loadedalldata"]).forEach(function(e){-1===s.indexOf(e)&&s.push(e)}),r.on(s,u),F()||function(t,n){n&&e.log("Using cancelContentPlay to block content playback"),t.on("play",m)}(r,i.debug),r.setTimeout(function(){r.ads._hasThereBeenALoadStartDuringPlayerLife||""===r.src()||e.log.error("videojs-contrib-ads has not seen a loadstart event 5 seconds after being initialized, but a source is present. This indicates that videojs-contrib-ads was initialized too late. It must be initialized immediately after video.js in the same tick. As a result, some ads will not play and some media events will be incorrect. For more information, see http://videojs.github.io/videojs-contrib-ads/integrator/getting-started.html")},5e3),r.on("ended",function(){r.hasClass("vjs-has-started")||r.addClass("vjs-has-started")}),r.on("contenttimeupdate",function(){r.removeClass("vjs-waiting")}),r.on(["addurationchange","adcanplay"],function(){if(!r.ads.settings.stitchedAds&&!r.hasStarted()&&(!r.ads.snapshot||r.currentSrc()!==r.ads.snapshot.currentSrc)&&r.ads.inAdBreak()){var t=r.play();t&&t.catch&&t.catch(function(t){e.log.warn("Play promise rejected when playing ad",t)})}}),r.on("nopreroll",function(){r.ads.debug("Received nopreroll event"),r.ads.nopreroll_=!0}),r.on("nopostroll",function(){r.ads.debug("Received nopostroll event"),r.ads.nopostroll_=!0}),r.on("playing",function(){r.ads._cancelledPlay=!1,r.ads._pausedOnContentupdate=!1}),r.on("play",function(){r.ads._playRequested=!0}),r.one("loadstart",function(){r.ads._hasThereBeenALoadStartDuringPlayerLife=!0}),r.on("loadeddata",function(){r.ads._hasThereBeenALoadedData=!0}),r.on("loadedmetadata",function(){r.ads._hasThereBeenALoadedMetaData=!0}),r.ads=function(t){return{disableNextSnapshotRestore:!1,_contentEnding:!1,_contentHasEnded:!1,_hasThereBeenALoadStartDuringPlayerLife:!1,_hasThereBeenALoadedData:!1,_hasThereBeenALoadedMetaData:!1,_inLinearAdMode:!1,_shouldBlockPlay:!1,_playBlocked:!1,_playRequested:!1,adType:null,VERSION:a,reset:function(){t.ads.disableNextSnapshotRestore=!1,t.ads._contentEnding=!1,t.ads._contentHasEnded=!1,t.ads.snapshot=null,t.ads.adType=null,t.ads._hasThereBeenALoadedData=!1,t.ads._hasThereBeenALoadedMetaData=!1,t.ads._cancelledPlay=!1,t.ads._shouldBlockPlay=!1,t.ads._playBlocked=!1,t.ads.nopreroll_=!1,t.ads.nopostroll_=!1,t.ads._playRequested=!1},startLinearAdMode:function(){t.ads._state.startLinearAdMode()},endLinearAdMode:function(){t.ads._state.endLinearAdMode()},skipLinearAdMode:function(){t.ads._state.skipLinearAdMode()},stitchedAds:function(t){return void 0!==t&&(e.log.warn("Using player.ads.stitchedAds() as a setter is deprecated, it should be set as an option upon initialization of contrib-ads."),this.settings.stitchedAds=!!t),this.settings.stitchedAds},videoElementRecycled:function(){if(t.ads.shouldPlayContentBehindAd(t))return!1;if(!this.snapshot)throw new Error("You cannot use videoElementRecycled while there is no snapshot.");var e=t.tech_.src()!==this.snapshot.src,n=t.currentSrc()!==this.snapshot.currentSrc;return e||n},isLive:function(n){return void 0===n&&(n=t),"boolean"==typeof n.ads.settings.contentIsLive?n.ads.settings.contentIsLive:n.duration()===1/0||"8"===e.browser.IOS_VERSION&&0===n.duration()},shouldPlayContentBehindAd:function(n){if(void 0===n&&(n=t),n)return!!n.ads.settings.liveCuePoints&&!e.browser.IS_IOS&&!e.browser.IS_ANDROID&&n.duration()===1/0;throw new Error("shouldPlayContentBehindAd requires a player as a param")},shouldTakeSnapshots:function(e){return void 0===e&&(e=t),!this.shouldPlayContentBehindAd(e)&&!this.stitchedAds()},isInAdMode:function(){return this._state.isAdState()},isWaitingForAdBreak:function(){return this._state.isWaitingForAdBreak()},isContentResuming:function(){return this._state.isContentResuming()},isAdPlaying:function(){return this._state.inAdBreak()},inAdBreak:function(){return this._state.inAdBreak()},removeNativePoster:function(){var e=t.$(".vjs-tech");e&&e.removeAttribute("poster")},debug:function(){if(this.settings.debug){for(var t=arguments.length,n=new Array(t),a=0;a<t;a++)n[a]=arguments[a];1===n.length&&"string"==typeof n[0]?e.log("ADS: "+n[0]):e.log.apply(e,["ADS:"].concat(n))}}}}(r),r.ads.settings=i,i.stitchedAds=!!i.stitchedAds,i.stitchedAds?r.ads._state=new(k.getState("StitchedContentPlayback"))(r):r.ads._state=new(k.getState("BeforePreroll"))(r),r.ads._state.init(r),r.ads.cueTextTracks=g,r.ads.adMacroReplacement=function(a,o,r){var i=this,s={};a=a.replace(/{([^}=]+)=([^}]+)}/g,function(e,t,n){return s["{"+t+"}"]=n,"{"+t+"}"}),void 0===o&&(o=!1);var d={};for(var l in void 0!==r&&(d=r),d["{player.id}"]=this.options_["data-player"]||this.id_,d["{player.height}"]=this.currentHeight(),d["{player.width}"]=this.currentWidth(),d["{mediainfo.id}"]=this.mediainfo?this.mediainfo.id:"",d["{mediainfo.name}"]=this.mediainfo?this.mediainfo.name:"",d["{mediainfo.duration}"]=this.mediainfo?this.mediainfo.duration:"",d["{player.duration}"]=this.duration(),d["{player.pageUrl}"]=e.dom.isInFrame()?n.referrer:t.location.href,d["{playlistinfo.id}"]=this.playlistinfo?this.playlistinfo.id:"",d["{playlistinfo.name}"]=this.playlistinfo?this.playlistinfo.name:"",d["{timestamp}"]=(new Date).getTime(),d["{document.referrer}"]=n.referrer,d["{window.location.href}"]=t.location.href,d["{random}"]=Math.floor(1e12*Math.random()),["description","tags","reference_id","ad_keys"].forEach(function(e){i.mediainfo&&i.mediainfo[e]?d["{mediainfo."+e+"}"]=i.mediainfo[e]:s["{mediainfo."+e+"}"]?d["{mediainfo."+e+"}"]=s["{mediainfo."+e+"}"]:d["{mediainfo."+e+"}"]=""}),p(this.mediainfo,d,"custom_fields"),p(this.mediainfo,d,"customFields"),Object.keys(c).forEach(function(e){d["{tcf."+e+"}"]=c[e]}),d["{tcf.gdprAppliesInt}"]=c.gdprApplies?1:0,d)a=a.split(l).join(h(d[l],o));for(var u in a=a.replace(/{pageVariable\.([^}]+)}/g,function(n,a){for(var r,i=t,d=a.split("."),l=0;l<d.length;l++)l===d.length-1?r=i[d[l]]:i=i[d[l]];var u=typeof r;return null===r?"null":void 0===r?s["{pageVariable."+a+"}"]?s["{pageVariable."+a+"}"]:(e.log.warn('Page variable "'+a+'" not found'),""):"string"!==u&&"number"!==u&&"boolean"!==u?(e.log.warn('Page variable "'+a+'" is not a supported type'),""):h(String(r),o)}),s)a=a.replace(u,s[u]);return a}.bind(r),function(e){e.ads.contentSrc=e.currentSrc(),e.ads._seenInitialLoadstart=!1,e.on("loadstart",function(){if(!e.ads.inAdBreak()){var t=e.currentSrc();t!==e.ads.contentSrc&&(e.ads._seenInitialLoadstart&&e.trigger({type:"contentchanged"}),e.trigger({type:"contentupdate",oldValue:e.ads.contentSrc,newValue:t}),e.ads.contentSrc=t),e.ads._seenInitialLoadstart=!0}})}(r),r.on("contentchanged",r.ads.reset);var d=function(){var t=r.textTracks();if(!r.ads.shouldPlayContentBehindAd(r)&&r.ads.inAdBreak()&&r.tech_.featuresNativeTextTracks&&e.browser.IS_IOS&&!Array.isArray(r.textTracks()))for(var n=0;n<t.length;n++){var a=t[n];"showing"===a.mode&&(a.mode="disabled")}};r.ready(function(){r.textTracks().addEventListener("change",d)}),r.on(["play","playing","ended","adsready","adscanceled","adskip","adserror","adtimeout","adended","ads-ad-started","contentchanged","dispose","contentresumed","readyforpostroll","nopreroll","nopostroll"],function(e){r.ads._state.handleEvent(e.type)}),r.on("dispose",function(){r.ads.reset(),r.textTracks().removeEventListener("change",d)}),f(),r.ads.listenToTcf=f};return q.VERSION=a,function(t){!b(e)&&((e.registerPlugin||e.plugin)("ads",t),P()&&!e.usingContribAdsMiddleware_&&(e.use("*",_),e.usingContribAdsMiddleware_=!0,e.log.debug("Play middleware has been registered with videojs")))}(q),q});
+
+//Videojs-contrib-ads @version 6.9.0 @license Apache-2.0 * End /
+
+          
+      
+
+// IMA Ads Loader:
+
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('video.js')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'video.js'], factory) :
+  (factory((global.videojsIma = {}),global.videojs));
+}(this, (function (exports,videojs) { 'use strict';   
+
+videojs = videojs && videojs.hasOwnProperty('default') ? videojs['default'] : videojs;
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * IMA SDK integration plugin for Video.js. For more information see
+ * https://www.github.com/googleads/videojs-ima
+ */
+
+/**
+ * Wraps the video.js player for the plugin.
+ *
+ * @param {Object} player Video.js player instance.
+ * @param {Object} adsPluginSettings Settings for the contrib-ads plugin.
+ * @param {Controller} controller Reference to the parent controller.
+ */
+
+
+
+
+var PlayerWrapper = function PlayerWrapper(player, adsPluginSettings, controller) {
+  /**
+   * Instance of the video.js player.
+   */
+  this.vjsPlayer = player;
+
+  /**
+   * Plugin controller.
+   */
+  this.controller = controller;
+
+
+   /**
+   * Timer used to track content progress.
+   */
+  this.contentTrackingTimer = null;
+
+  /**
+   * True if our content video has completed, false otherwise.
+   */
+  this.contentComplete = false;
+
+  /**
+   * Handle to interval that repeatedly updates current time.
+   */
+  this.updateTimeIntervalHandle = null;
+
+  /**
+   * Interval (ms) to check for player resize for fluid support.
+   */
+  this.updateTimeInterval = 1000;                
+
+  /**
+   * Handle to interval that repeatedly checks for seeking.
+   */
+  this.seekCheckIntervalHandle = null;       
+
+  /**
+   * Interval (ms) on which to check if the user is seeking through the
+   * content.
+   */
+  this.seekCheckInterval = 1000;        
+
+
+
+
+ 
+  /**
+   * Handle to interval that repeatedly checks for player resize.
+   */
+  this.resizeCheckIntervalHandle = null;
+
+        
+
+  /**
+   * Interval (ms) to check for player resize for fluid support.
+   */
+
+
+  this.resizeCheckInterval = 250;                   
+
+  /**
+   * Threshold by which to judge user seeking. We check every 1000 ms to see
+   * if the user is seeking. In order for us to decide that they are *not*
+   * seeking, the content video playhead must only change by 900-1100 ms
+   * between checks. Any greater change and we assume the user is seeking
+   * through the video.
+   */
+
+   
+
+
+  this.seekThreshold = 100;
+
+  /**
+   * Content ended listeners passed by the publisher to the plugin. Publishers
+   * should allow the plugin to handle content ended to ensure proper support
+   * of custom ad playback.
+   */
+
+
+
+  this.contentEndedListeners = [];   
+
+  /**
+   * Stores the content source so we can re-populate it manually after a
+   * post-roll on iOS.
+   */
+  this.contentSource = '';                                                                    
+
+  /**
+   * Stores the content source type so we can re-populate it manually after a
+   * post-roll.
+   */
+
+
+  this.contentSourceType = '';   
+
+  /**
+   * Stores data for the content playhead tracker.
+   */
+
+
+  this.contentPlayheadTracker = {           
+    currentTime: 0,
+    previousTime: 0,
+    seeking: false,
+    duration: 0
+  };                         
+                                                  
+                                         
+   /**
+   * Player dimensions. Used in our resize check.
+   */
+
+  this.vjsPlayerDimensions = {
+    width: this.getPlayerWidth(),
+    height: this.getPlayerHeight()
+  };
+
+   /**
+   * admaru player control bar.       
+   */
+
+  this.vjsControls = this.vjsPlayer.getChild('controlBar');
+
+  /**
+   * Vanilla HTML5 video player underneath the admaru player.
+   */
+  this.h5Player = null;
+
+  this.vjsPlayer.one('play', this.setUpPlayerIntervals.bind(this));   
+  this.boundContentEndedListener = this.localContentEndedListener.bind(this);       
+  this.vjsPlayer.on('contentended', this.boundContentEndedListener);           
+  this.vjsPlayer.on('dispose', this.playerDisposedListener.bind(this));                                
+  this.vjsPlayer.on('readyforpreroll', this.onReadyForPreroll.bind(this));                                   
+  this.vjsPlayer.on('adtimeout', this.onAdTimeout.bind(this));                
+  this.vjsPlayer.ready(this.onPlayerReady.bind(this));                  
+
+  if (this.controller.getSettings().requestMode === 'onPlay') {
+    this.vjsPlayer.one('play', this.controller.requestAds.bind(this.controller));
+  }
+
+
+  this.vjsPlayer.ads(adsPluginSettings);
+};
+
+/**
+ * Set up the intervals we use on the player.
+ */
+
+
+PlayerWrapper.prototype.setUpPlayerIntervals = function () {
+  this.updateTimeIntervalHandle = setInterval(this.updateCurrentTime.bind(this), this.updateTimeInterval);
+  this.seekCheckIntervalHandle = setInterval(this.checkForSeeking.bind(this), this.seekCheckInterval);
+  this.resizeCheckIntervalHandle = setInterval(this.checkForResize.bind(this), this.resizeCheckInterval);
+};
+
+/**
+ * Updates the current time of the video
+ */
+PlayerWrapper.prototype.updateCurrentTime = function () {
+  if (!this.contentPlayheadTracker.seeking) {
+    this.contentPlayheadTracker.currentTime = this.vjsPlayer.currentTime();
+  } 
+};
+
+/**
+ * Detects when the user is seeking through a video.
+ * This is used to prevent mid-rolls from playing while a user is seeking.
+ *
+ * There *is* a seeking property of the HTML5 video element, but it's not
+ * properly implemented on all platforms (e.g. mobile safari), so we have to
+ * check ourselves to be sure.
+ */
+PlayerWrapper.prototype.checkForSeeking = function () {
+  var tempCurrentTime = this.vjsPlayer.currentTime();
+  var diff = (tempCurrentTime - this.contentPlayheadTracker.previousTime) * 1000;
+  if (Math.abs(diff) > this.seekCheckInterval + this.seekThreshold) {
+    this.contentPlayheadTracker.seeking = true;
+  } else {
+    this.contentPlayheadTracker.seeking = false;
+  }
+  this.contentPlayheadTracker.previousTime = this.vjsPlayer.currentTime();
+};      
+
+/**
+ * Detects when the player is resized (for fluid support) and resizes the
+ * ads manager to match.
+ */
+PlayerWrapper.prototype.checkForResize = function () {
+  var currentWidth = this.getPlayerWidth();
+  var currentHeight = this.getPlayerHeight();
+
+  if (currentWidth != this.vjsPlayerDimensions.width || currentHeight != this.vjsPlayerDimensions.height) {
+    this.vjsPlayerDimensions.width = currentWidth;           
+    this.vjsPlayerDimensions.height = currentHeight;                                                       
+    this.controller.onPlayerResize(currentWidth, currentHeight);                                                                  
+  }                    
+};    
+
+                                                                                                
+
+/**
+ * Local content ended listener for contentComplete.                                        
+ */                                                                                                   
+PlayerWrapper.prototype.localContentEndedListener = function () {
+  if (!this.contentComplete) {                                                                                                                                                                                                                   
+    this.contentComplete = true;                 
+    this.controller.onContentComplete();         
+  }                  
+
+
+
+  for (var index in this.contentEndedListeners) {
+    if (typeof this.contentEndedListeners[index] === 'function') {
+      this.contentEndedListeners[index]();
+    }
+  }
+
+
+         
+  clearInterval(this.updateTimeIntervalHandle);
+  clearInterval(this.seekCheckIntervalHandle);
+  clearInterval(this.resizeCheckIntervalHandle);
+  if (this.vjsPlayer.el()) {
+    this.vjsPlayer.one('play', this.setUpPlayerIntervals.bind(this));
+  }
+};
+
+
+
+/**
+ * Called when it's time to play a post-roll but we don't have one to play.
+ */
+PlayerWrapper.prototype.onNoPostroll = function () {
+  this.vjsPlayer.trigger('nopostroll');
+};
+
+
+
+/**
+ * Detects when the video.js player has been disposed.    
+ */
+
+PlayerWrapper.prototype.playerDisposedListener = function () {
+  this.contentEndedListeners = [];              
+  this.controller.onPlayerDisposed();  
+
+
+
+  this.contentComplete = true;        
+  this.vjsPlayer.off('contentended', this.boundContentEndedListener);       
+
+  // Bug fix: https://github.com/googleads/videojs-ima/issues/306      
+  if (this.vjsPlayer.ads.adTimeoutTimeout) {                                                                                                
+    clearTimeout(this.vjsPlayer.ads.adTimeoutTimeout);                   
+  }
+
+
+
+
+  var intervalsToClear = [this.updateTimeIntervalHandle, this.seekCheckIntervalHandle, this.resizeCheckIntervalHandle];
+  for (var index in intervalsToClear) {
+    if (intervalsToClear[index]) {
+      clearInterval(intervalsToClear[index]);
+    }
+  }
+};
+
+
+
+
+/**
+ * Start ad playback, or content video playback in the absence of a
+ * pre-roll.
+ */
+
+
+PlayerWrapper.prototype.onReadyForPreroll = function () {
+  this.controller.onPlayerReadyForPreroll();
+};
+
+
+
+/**
+ * Detects if the ad has timed out.
+ */
+PlayerWrapper.prototype.onAdTimeout = function () {
+  this.controller.onAdTimeout();         
+};
+
+
+
+/**
+ * Called when the player fires its 'ready' event.
+ */
+
+                 
+PlayerWrapper.prototype.onPlayerReady = function () {
+  this.h5Player = document.getElementById(this.getPlayerId()).getElementsByClassName('vjs-tech')[0];
+
+  // Detect inline options
+  if (this.h5Player.hasAttribute('autoplay')) {    
+    this.controller.setSetting('adWillAutoPlay', true);
+
+  }
+
+    
+                            
+
+  // Sync ad volume with player volume.
+  this.onVolumeChange();         
+  this.vjsPlayer.on('fullscreenchange', this.onFullscreenChange.bind(this));
+  this.vjsPlayer.on('volumechange', this.onVolumeChange.bind(this));
+
+  this.controller.onPlayerReady();
+};
+
+
+/**
+ * Listens for the admaru player to change its fullscreen status. This
+ * keeps the fullscreen-ness of the AdContainer in sync with the player.
+ */
+  
+               
+
+PlayerWrapper.prototype.onFullscreenChange = function () {
+  if (this.vjsPlayer.isFullscreen()) {
+    this.controller.onPlayerEnterFullscreen();
+  } else {
+    this.controller.onPlayerExitFullscreen();
+  }
+};
+
+          
+
+/**
+ * Listens for the admaru player to change its volume. This keeps the ad
+ * volume in sync with the content volume if the volume of the player is
+ * changed while content is playing.
+ */
+PlayerWrapper.prototype.onVolumeChange = function () {
+  var newVolume = this.vjsPlayer.muted() ? 0 : this.vjsPlayer.volume();
+  this.controller.onPlayerVolumeChanged(newVolume);
+};
+
+/**            
+ * Inject the ad container div into the DOM.
+ *
+ * @param{HTMLElement} adContainerDiv The ad container div.
+ */
+PlayerWrapper.prototype.injectAdContainerDiv = function (adContainerDiv) {
+  this.vjsControls.el().parentNode.appendChild(adContainerDiv);
+};
+
+
+
+      
+/**
+ * @return {Object} The content player.   
+
+ */
+PlayerWrapper.prototype.getContentPlayer = function () {              
+  return this.h5Player;
+};
+              
+
+
+/**
+ * @return {number} The volume, 0-1.
+ */
+
+
+PlayerWrapper.prototype.getVolume = function () {
+  return this.vjsPlayer.muted() ? 0 : this.vjsPlayer.volume();
+};
+
+
+/**
+ * Set the volume of the player. 0-1.
+ *
+ * @param {number} volume The new volume.
+ */
+PlayerWrapper.prototype.setVolume = function (volume) {                           
+  this.vjsPlayer.volume(volume);
+  if (volume == 0) {
+    this.vjsPlayer.muted(true);
+  } else {
+    this.vjsPlayer.muted(false);
+  }
+};
+       
+
+/**
+ * Ummute the player.          
+ */
+PlayerWrapper.prototype.unmute = function () {
+  this.vjsPlayer.muted(false);              
+};
+
+  
+
+
+/**
+ * Mute the player.
+ */
+PlayerWrapper.prototype.mute = function () {           
+  this.vjsPlayer.muted(true);            
+};
+
+     
+
+/**
+ * Play the video.          
+ */
+
+PlayerWrapper.prototype.play = function () {                
+  this.vjsPlayer.play();
+};                         
+
+   
+
+/**
+ * Toggles playback of the video.
+ */
+
+PlayerWrapper.prototype.togglePlayback = function () {
+  if (this.vjsPlayer.paused()) {    
+    this.vjsPlayer.play();          
+  } else {
+    this.vjsPlayer.pause();                                                        
+  }
+};
+
+
+
+/**
+ * Get the player width.
+ *
+ * @return {number} The player's width.
+ */
+PlayerWrapper.prototype.getPlayerWidth = function () {
+  var width = (getComputedStyle(this.vjsPlayer.el()) || {}).width;
+
+  if (!width || parseFloat(width) === 0) {
+    width = (this.vjsPlayer.el().getBoundingClientRect() || {}).width;
+  }
+
+  return parseFloat(width) || this.vjsPlayer.width();
+};
+        
+   
+/**
+ * Get the player height.
+ *
+ * @return {number} The player's height.
+ */
+PlayerWrapper.prototype.getPlayerHeight = function () {
+  var height = (getComputedStyle(this.vjsPlayer.el()) || {}).height;
+
+  if (!height || parseFloat(height) === 0) {                                                              
+    height = (this.vjsPlayer.el().getBoundingClientRect() || {}).height;
+  }
+         
+  return parseFloat(height) || this.vjsPlayer.height();
+};
+
+
+                          
+/**
+ * @return {Object} The vjs player's options object.
+ */
+
+
+PlayerWrapper.prototype.getPlayerOptions = function () {
+  return this.vjsPlayer.options_;
+};
+
+
+
+/**
+ * Returns the instance of the player id.
+ * @return {string} The player id.
+ */  
+
+          
+
+PlayerWrapper.prototype.getPlayerId = function () {     
+  return this.vjsPlayer.id();                                                                                                  
+};                 
+   
+                                                           
+
+/**
+ * Toggle fullscreen state.
+ */
+   
+                                    
+PlayerWrapper.prototype.toggleFullscreen = function () {
+  if (this.vjsPlayer.isFullscreen()) {
+    this.vjsPlayer.exitFullscreen();
+  } else {
+    this.vjsPlayer.requestFullscreen();
+  }
+};
+
+
+ 
+/**                      
+ * Returns the content playhead tracker.
+ *       
+ * @return {Object} The content playhead tracker.
+ */       
+PlayerWrapper.prototype.getContentPlayheadTracker = function () {
+  return this.contentPlayheadTracker;
+};       
+
+/**
+ * Handles ad errors.
+ *
+ * @param {Object} adErrorEvent The ad error event thrown by the IMA SDK.
+ */
+PlayerWrapper.prototype.onAdError = function (adErrorEvent) {
+  this.vjsControls.show();
+  var errorMessage = adErrorEvent.getError !== undefined ? adErrorEvent.getError() : adErrorEvent.stack;
+  this.vjsPlayer.trigger({ type: 'adserror', data: {
+      AdError: errorMessage,
+      AdErrorEvent: adErrorEvent
+    } });
+};
+
+/**
+ * Handles ad log messages.
+ * @param {google.ima.AdEvent} adEvent The AdEvent thrown by the IMA SDK.
+ */
+PlayerWrapper.prototype.onAdLog = function (adEvent) {
+  var adData = adEvent.getAdData();
+  var errorMessage = adData['adError'] !== undefined ? adData['adError'].getMessage() : undefined;
+  this.vjsPlayer.trigger({ type: 'adslog', data: {
+      AdError: errorMessage,
+      AdEvent: adEvent
+    } });
+};
+
+/**
+ * Handles ad break starting.
+ */
+PlayerWrapper.prototype.onAdBreakStart = function () {
+  this.contentSource = this.vjsPlayer.currentSrc();
+  this.contentSourceType = this.vjsPlayer.currentType();
+  this.vjsPlayer.off('contentended', this.boundContentEndedListener);
+  this.vjsPlayer.ads.startLinearAdMode();
+  this.vjsControls.hide();
+  this.vjsPlayer.pause();
+};
+
+/**
+ * Handles ad break ending.
+ */
+PlayerWrapper.prototype.onAdBreakEnd = function () {
+  this.vjsPlayer.on('contentended', this.boundContentEndedListener);
+  if (this.vjsPlayer.ads.inAdBreak()) {
+    this.vjsPlayer.ads.endLinearAdMode();
+  }
+  this.vjsControls.show();
+};
+
+/**
+ * Handles an individual ad start.
+ */
+PlayerWrapper.prototype.onAdStart = function () {
+  this.vjsPlayer.trigger('ads-ad-started');
+};
+
+/**
+ * Handles when all ads have finished playing.
+ */
+PlayerWrapper.prototype.onAllAdsCompleted = function () {
+  if (this.contentComplete == true) {
+    // The null check on this.contentSource was added to fix
+    // an error when the post-roll was an empty VAST tag.
+    if (this.contentSource && this.vjsPlayer.currentSrc() != this.contentSource) {                
+      this.vjsPlayer.src({  src: this.contentSource,
+        type: this.contentSourceType
+      });
+    }
+    this.controller.onContentAndAdsCompleted();
+  }
+};
+
+/**
+ * Triggers adsready for contrib-ads.
+ */
+PlayerWrapper.prototype.onAdsReady = function () {
+  this.vjsPlayer.trigger('adsready');
+};
+
+/**
+ * Changes the player source.
+ * @param {?string} contentSrc The URI for the content to be played. Leave
+ *     blank to use the existing content.
+ */
+PlayerWrapper.prototype.changeSource = function (contentSrc) {
+  // Only try to pause the player when initialised with a source already
+  if (this.vjsPlayer.currentSrc()) {
+    this.vjsPlayer.currentTime(0);
+    this.vjsPlayer.pause();
+  }
+  if (contentSrc) {
+    this.vjsPlayer.src(contentSrc);
+  }
+  this.vjsPlayer.one('loadedmetadata', this.seekContentToZero.bind(this));
+};
+
+/**
+ * Seeks content to 00:00:00. This is used as an event handler for the
+ * loadedmetadata event, since seeking is not possible until that event has
+ * fired.
+ */
+PlayerWrapper.prototype.seekContentToZero = function () {
+  this.vjsPlayer.currentTime(0);
+};
+
+/**
+ * Triggers an event on the VJS player
+ * @param  {string} name The event name.
+ * @param  {Object} data The event data.
+ */
+PlayerWrapper.prototype.triggerPlayerEvent = function (name, data) {
+  this.vjsPlayer.trigger(name, data);
+};
+
+/**
+ * Listener JSDoc for ESLint. This listener can be passed to
+ * addContentEndedListener.
+ * @callback listener
+ */
+
+/**
+ * Adds a listener for the 'contentended' event of the video player. This should
+ * be used instead of setting an 'contentended' listener directly to ensure that
+ * the ima can do proper cleanup of the SDK before other event listeners are
+ * called.
+ * @param {listener} listener The listener to be called when content
+ *     completes.
+ */
+PlayerWrapper.prototype.addContentEndedListener = function (listener) {
+  this.contentEndedListeners.push(listener);
+};
+
+/**
+ * Reset the player.
+ */
+PlayerWrapper.prototype.reset = function () {
+  // Attempts to remove the contentEndedListener before adding it.
+  // This is to prevent an error where an erroring video caused multiple
+  // contentEndedListeners to be added.
+  this.vjsPlayer.off('contentended', this.boundContentEndedListener);
+
+  this.vjsPlayer.on('contentended', this.boundContentEndedListener);
+  this.vjsControls.show();
+  if (this.vjsPlayer.ads.inAdBreak()) {
+    this.vjsPlayer.ads.endLinearAdMode();
+  }
+  // Reset the content time we give the SDK. Fixes an issue where requesting
+  // VMAP followed by VMAP would play the second mid-rolls as pre-rolls if
+  // the first playthrough of the video passed the second response's
+  // mid-roll time.
+  this.contentPlayheadTracker.currentTime = 0;
+  this.contentComplete = false;
+};
+
+/**
+ * Copyright 2017 Google Inc.                           
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * IMA SDK integration plugin for Video.js. For more information see
+ * https://www.github.com/googleads/videojs-ima
+ */
+
+/**
+ * Ad UI implementation.
+ *
+ * @param {Controller} controller Plugin controller.
+ * @constructor
+ * @struct
+ * @final
+ */
+
+var AdUi = function AdUi(controller) {
+  /**
+   * Plugin controller.
+   */
+  this.controller = controller;
+
+  /**
+   * Div used as an ad container.
+   */
+
+  this.adContainerDiv = document.createElement('div');
+
+  /**
+   * Div used to display ad controls.
+   */
+
+  this.controlsDiv = document.createElement('div');
+
+
+  /**
+   * Div used to display ad countdown timer.    
+   */
+  this.countdownDiv = document.createElement('div');     
+
+
+  /**
+   * Div used to display add seek bar.
+   */
+  this.seekBarDiv = document.createElement('div');                  
+
+  /**
+   * Div used to display ad progress (in seek bar).                              
+   */
+  this.progressDiv = document.createElement('div');
+
+  /**
+   * Div used to display ad play/pause button.
+   */
+  this.playPauseDiv = document.createElement('div');
+
+  /**
+   * Div used to display ad mute button.
+   */
+  this.muteDiv = document.createElement('div');
+
+  /**
+   * Div used by the volume slider.
+   */
+  this.sliderDiv = document.createElement('div');
+
+  /**
+   * Volume slider level visuals
+   */
+  this.sliderLevelDiv = document.createElement('div');
+
+  /**
+   * Div used to display ad fullscreen button.
+   */
+  this.fullscreenDiv = document.createElement('div');
+
+  /**
+   * Bound event handler for onMouseUp.
+   */
+  this.boundOnMouseUp = this.onMouseUp.bind(this);
+
+  /**
+   * Bound event handler for onMouseMove.
+   */
+  this.boundOnMouseMove = this.onMouseMove.bind(this);
+
+  /**
+   * Stores data for the ad playhead tracker.
+   */
+  this.adPlayheadTracker = {
+    'currentTime': 0,
+    'duration': 0,
+    'isPod': false,
+    'adPosition': 0,
+    'totalAds': 0
+  };
+
+  /**
+   * Used to prefix videojs ima controls.
+   */
+  this.controlPrefix = this.controller.getPlayerId() + '_';
+
+  /**
+   * Boolean flag to show or hide the ad countdown timer.
+   */
+  this.showCountdown = true;
+  if (this.controller.getSettings().showCountdown === false) {
+    this.showCountdown = false;
+  }
+
+  /**
+   * Boolean flag if the current ad is nonlinear.
+   */
+  this.isAdNonlinear = false;
+
+  this.createAdContainer();
+};
+
+/**
+ * Creates the ad container.
+ */
+AdUi.prototype.createAdContainer = function () {
+  this.assignControlAttributes(this.adContainerDiv, 'ima-ad-container');
+  this.adContainerDiv.style.position = 'absolute';
+  this.adContainerDiv.style.zIndex = 1111;
+  this.adContainerDiv.addEventListener('mouseenter', this.showAdControls.bind(this), false);
+  this.adContainerDiv.addEventListener('mouseleave', this.hideAdControls.bind(this), false);
+  this.adContainerDiv.addEventListener('click', this.onAdContainerClick.bind(this), false);
+  this.createControls();
+  this.controller.injectAdContainerDiv(this.adContainerDiv);
+};
+
+/**
+ * Create the controls.
+ */
+AdUi.prototype.createControls = function () {
+  this.assignControlAttributes(this.controlsDiv, 'ima-controls-div');
+  this.controlsDiv.style.width = '100%';
+
+  if (!this.controller.getIsMobile()) {
+    this.assignControlAttributes(this.countdownDiv, 'ima-countdown-div');
+    this.countdownDiv.innerHTML = this.controller.getSettings().adLabel;
+    this.countdownDiv.style.display = this.showCountdown ? 'block' : 'none';
+  } else {
+    this.countdownDiv.style.display = 'none';
+  }
+
+  this.assignControlAttributes(this.seekBarDiv, 'ima-seek-bar-div');
+  this.seekBarDiv.style.width = '100%';
+
+  this.assignControlAttributes(this.progressDiv, 'ima-progress-div');
+
+  this.assignControlAttributes(this.playPauseDiv, 'ima-play-pause-div');
+  this.addClass(this.playPauseDiv, 'ima-playing');
+  this.playPauseDiv.addEventListener('click', this.onAdPlayPauseClick.bind(this), false);
+
+  this.assignControlAttributes(this.muteDiv, 'ima-mute-div');
+  this.addClass(this.muteDiv, 'ima-non-muted');
+  this.muteDiv.addEventListener('click', this.onAdMuteClick.bind(this), false);
+
+  this.assignControlAttributes(this.sliderDiv, 'ima-slider-div');
+  this.sliderDiv.addEventListener('mousedown', this.onAdVolumeSliderMouseDown.bind(this), false);
+
+  // Hide volume slider controls on iOS as they aren't supported.
+  if (this.controller.getIsIos()) {
+    this.sliderDiv.style.display = 'none';
+  }
+
+  this.assignControlAttributes(this.sliderLevelDiv, 'ima-slider-level-div');
+
+  this.assignControlAttributes(this.fullscreenDiv, 'ima-fullscreen-div');
+  this.addClass(this.fullscreenDiv, 'ima-non-fullscreen');
+  this.fullscreenDiv.addEventListener('click', this.onAdFullscreenClick.bind(this), false);
+
+  this.adContainerDiv.appendChild(this.controlsDiv);
+  this.controlsDiv.appendChild(this.countdownDiv);
+  this.controlsDiv.appendChild(this.seekBarDiv);
+  this.controlsDiv.appendChild(this.playPauseDiv);
+  this.controlsDiv.appendChild(this.muteDiv);
+  this.controlsDiv.appendChild(this.sliderDiv);
+  this.controlsDiv.appendChild(this.fullscreenDiv);
+  this.seekBarDiv.appendChild(this.progressDiv);
+  this.sliderDiv.appendChild(this.sliderLevelDiv);
+};
+
+/**
+ * Listener for clicks on the play/pause button during ad playback.
+ */
+AdUi.prototype.onAdPlayPauseClick = function () {
+  this.controller.onAdPlayPauseClick();
+};
+
+/**
+ * Listener for clicks on the play/pause button during ad playback.
+ */
+AdUi.prototype.onAdMuteClick = function () {
+  this.controller.onAdMuteClick();
+};
+
+/**
+ * Listener for clicks on the fullscreen button during ad playback.
+ */
+AdUi.prototype.onAdFullscreenClick = function () {
+  this.controller.toggleFullscreen();
+};
+
+/**
+ * Show pause and hide play button
+ */
+AdUi.prototype.onAdsPaused = function () {
+  this.controller.sdkImpl.adPlaying = false;
+  this.addClass(this.playPauseDiv, 'ima-paused');
+  this.removeClass(this.playPauseDiv, 'ima-playing');
+  this.showAdControls();
+};
+
+/**
+ * Show pause and hide play button
+ */
+AdUi.prototype.onAdsResumed = function () {
+  this.onAdsPlaying();
+  this.showAdControls();
+};
+
+/**
+ * Show play and hide pause button
+ */
+AdUi.prototype.onAdsPlaying = function () {
+  this.controller.sdkImpl.adPlaying = true;
+  this.addClass(this.playPauseDiv, 'ima-playing');
+  this.removeClass(this.playPauseDiv, 'ima-paused');
+};
+
+/**
+ * Takes data from the controller to update the UI.
+ *
+ * @param {number} currentTime Current time of the ad.
+ * @param {number} remainingTime Remaining time of the ad.
+ * @param {number} duration Duration of the ad.
+ * @param {number} adPosition Index of the ad in the pod.
+ * @param {number} totalAds Total number of ads in the pod.
+ */
+AdUi.prototype.updateAdUi = function (currentTime, remainingTime, duration, adPosition, totalAds) {
+  // Update countdown timer data
+  var remainingMinutes = Math.floor(remainingTime / 60);
+  var remainingSeconds = Math.floor(remainingTime % 60);
+  if (remainingSeconds.toString().length < 2) {
+    remainingSeconds = '0' + remainingSeconds;
+  }
+  var podCount = ': ';
+  if (totalAds > 1) {
+    podCount = ' (' + adPosition + ' ' + this.controller.getSettings().adLabelNofN + ' ' + totalAds + '): ';
+  }
+  this.countdownDiv.innerHTML = this.controller.getSettings().adLabel + podCount + remainingMinutes + ':' + remainingSeconds;
+
+  // Update UI
+  var playProgressRatio = currentTime / duration;
+  var playProgressPercent = playProgressRatio * 100;
+  this.progressDiv.style.width = playProgressPercent + '%';
+};
+
+/**
+ * Handles UI changes when the ad is unmuted.
+ */
+AdUi.prototype.unmute = function () {
+  this.addClass(this.muteDiv, 'ima-non-muted');
+  this.removeClass(this.muteDiv, 'ima-muted');
+  this.sliderLevelDiv.style.width = this.controller.getPlayerVolume() * 100 + '%';
+};
+
+/**
+ * Handles UI changes when the ad is muted.
+ */
+AdUi.prototype.mute = function () {
+  this.addClass(this.muteDiv, 'ima-muted');
+  this.removeClass(this.muteDiv, 'ima-non-muted');
+  this.sliderLevelDiv.style.width = '0%';
+};
+
+/*
+ * Listener for mouse down events during ad playback. Used for volume.
+ */
+AdUi.prototype.onAdVolumeSliderMouseDown = function () {
+  document.addEventListener('mouseup', this.boundOnMouseUp, false);
+  document.addEventListener('mousemove', this.boundOnMouseMove, false);
+};
+
+/*
+ * Mouse movement listener used for volume slider.
+ */
+AdUi.prototype.onMouseMove = function (event) {
+  this.changeVolume(event);
+};
+
+/*
+ * Mouse release listener used for volume slider.
+ */
+AdUi.prototype.onMouseUp = function (event) {
+  this.changeVolume(event);
+  document.removeEventListener('mouseup', this.boundOnMouseUp);
+  document.removeEventListener('mousemove', this.boundOnMouseMove);
+};
+
+/*
+ * Utility function to set volume and associated UI
+ */
+AdUi.prototype.changeVolume = function (event) {
+  var percent = (event.clientX - this.sliderDiv.getBoundingClientRect().left) / this.sliderDiv.offsetWidth;
+  percent *= 100;
+  // Bounds value 0-100 if mouse is outside slider region.
+  percent = Math.min(Math.max(percent, 0), 100);
+  this.sliderLevelDiv.style.width = percent + '%';
+  if (this.percent == 0) {
+    this.addClass(this.muteDiv, 'ima-muted');
+    this.removeClass(this.muteDiv, 'ima-non-muted');
+  } else {
+    this.addClass(this.muteDiv, 'ima-non-muted');
+    this.removeClass(this.muteDiv, 'ima-muted');
+  }
+  this.controller.setVolume(percent / 100); // 0-1
+};
+
+/**
+ * Show the ad container.
+ */
+AdUi.prototype.showAdContainer = function () {
+  this.adContainerDiv.style.display = 'block';
+};
+
+/**
+ * Hide the ad container
+ */
+AdUi.prototype.hideAdContainer = function () {
+  this.adContainerDiv.style.display = 'none';
+};
+
+/**
+ * Handles clicks on the ad container
+ */
+AdUi.prototype.onAdContainerClick = function () {
+  if (this.isAdNonlinear) {
+    this.controller.togglePlayback();
+  }
+};
+
+/**
+ * Resets the state of the ad ui.
+ */
+AdUi.prototype.reset = function () {
+  this.hideAdContainer();
+};
+
+/**
+ * Handles ad errors.
+ */
+AdUi.prototype.onAdError = function () {
+  this.hideAdContainer();
+};
+
+/**
+ * Handles ad break starting.
+ *
+ * @param {Object} adEvent The event fired by the IMA SDK.
+ */
+AdUi.prototype.onAdBreakStart = function (adEvent) {
+  this.showAdContainer();
+
+  var contentType = adEvent.getAd().getContentType();
+  if (contentType === 'application/javascript' && !this.controller.getSettings().showControlsForJSAds) {
+    this.controlsDiv.style.display = 'none';
+  } else {
+    this.controlsDiv.style.display = 'block';
+  }
+  this.onAdsPlaying();
+  // Start with the ad controls minimized.
+  this.hideAdControls();
+};
+
+/**
+ * Handles ad break ending.
+ */
+AdUi.prototype.onAdBreakEnd = function () {
+  var currentAd = this.controller.getCurrentAd();
+  if (currentAd == null || // hide for post-roll only playlist
+  currentAd.isLinear()) {
+    // don't hide for non-linear ads
+    this.hideAdContainer();
+  }
+  this.controlsDiv.style.display = 'none';
+  this.countdownDiv.innerHTML = '';
+};
+
+/**
+ * Handles when all ads have finished playing.
+ */
+AdUi.prototype.onAllAdsCompleted = function () {
+  this.hideAdContainer();
+};
+
+/**
+ * Handles when a linear ad starts.
+ */
+AdUi.prototype.onLinearAdStart = function () {
+  // Don't bump container when controls are shown
+  this.removeClass(this.adContainerDiv, 'bumpable-ima-ad-container');
+  this.isAdNonlinear = false;
+};
+
+/**
+ * Handles when a non-linear ad starts.
+ */
+AdUi.prototype.onNonLinearAdLoad = function () {
+  // For non-linear ads that show after a linear ad. For linear ads, we show the
+  // ad container in onAdBreakStart to prevent blinking in pods.
+  this.adContainerDiv.style.display = 'block';
+  // Bump container when controls are shown
+  this.addClass(this.adContainerDiv, 'bumpable-ima-ad-container');
+  this.isAdNonlinear = true;
+};
+
+AdUi.prototype.onPlayerEnterFullscreen = function () {
+  this.addClass(this.fullscreenDiv, 'ima-fullscreen');
+  this.removeClass(this.fullscreenDiv, 'ima-non-fullscreen');
+};
+
+AdUi.prototype.onPlayerExitFullscreen = function () {
+  this.addClass(this.fullscreenDiv, 'ima-non-fullscreen');
+  this.removeClass(this.fullscreenDiv, 'ima-fullscreen');
+};
+
+/**
+ * Called when the player volume changes.
+ *
+ * @param {number} volume The new player volume.
+ */
+AdUi.prototype.onPlayerVolumeChanged = function (volume) {
+  if (volume == 0) {
+    this.addClass(this.muteDiv, 'ima-muted');
+    this.removeClass(this.muteDiv, 'ima-non-muted');
+    this.sliderLevelDiv.style.width = '0%';
+  } else {
+    this.addClass(this.muteDiv, 'ima-non-muted');
+    this.removeClass(this.muteDiv, 'ima-muted');
+    this.sliderLevelDiv.style.width = volume * 100 + '%';
+  }
+};
+
+/**
+ * Shows ad controls on mouseover.
+ */
+AdUi.prototype.showAdControls = function () {
+  var _controller$getSettin = this.controller.getSettings(),
+      disableAdControls = _controller$getSettin.disableAdControls;
+
+  if (!disableAdControls) {
+    this.addClass(this.controlsDiv, 'ima-controls-div-showing');
+  }
+};
+
+/**
+ * Hide the ad controls.
+ */
+AdUi.prototype.hideAdControls = function () {
+  this.removeClass(this.controlsDiv, 'ima-controls-div-showing');
+};
+
+/**
+ * Assigns the unique id and class names to the given element as well as the
+ * style class.
+ * @param {HTMLElement} element Element that needs the controlName assigned.
+ * @param {string} controlName Control name to assign.
+ */
+AdUi.prototype.assignControlAttributes = function (element, controlName) {
+  element.id = this.controlPrefix + controlName;
+  element.className = this.controlPrefix + controlName + ' ' + controlName;
+};
+
+/**
+ * Returns a regular expression to test a string for the given className.
+ *
+ * @param {string} className The name of the class.
+ * @return {RegExp} The regular expression used to test for that class.
+ */
+AdUi.prototype.getClassRegexp = function (className) {
+  // Matches on
+  // (beginning of string OR NOT word char)
+  // classname
+  // (negative lookahead word char OR end of string)
+  return new RegExp('(^|[^A-Za-z-])' + className + '((?![A-Za-z-])|$)', 'gi');
+};
+
+/**
+ * Returns whether or not the provided element has the provied class in its
+ * className.
+ * @param {HTMLElement} element Element to tes.t
+ * @param {string} className Class to look for.
+ * @return {boolean} True if element has className in class list. False
+ *     otherwise.
+ */
+AdUi.prototype.elementHasClass = function (element, className) {
+  var classRegexp = this.getClassRegexp(className);
+  return classRegexp.test(element.className);
+};
+
+/**
+ * Adds a class to the given element if it doesn't already have the class
+ * @param {HTMLElement} element Element to which the class will be added.
+ * @param {string} classToAdd Class to add.
+ */
+AdUi.prototype.addClass = function (element, classToAdd) {
+  element.className = element.className.trim() + ' ' + classToAdd;
+};
+
+/**
+ * Removes a class from the given element if it has the given class
+ *
+ * @param {HTMLElement} element Element from which the class will be removed.
+ * @param {string} classToRemove Class to remove.
+ */
+AdUi.prototype.removeClass = function (element, classToRemove) {
+  var classRegexp = this.getClassRegexp(classToRemove);
+  element.className = element.className.trim().replace(classRegexp, '');
+};
+
+/**
+ * @return {HTMLElement} The div for the ad container.
+ */
+AdUi.prototype.getAdContainerDiv = function () {
+  return this.adContainerDiv;
+};
+
+/**
+ * Changes the flag to show or hide the ad countdown timer.
+ *
+ * @param {boolean} showCountdownIn Show or hide the countdown timer.
+ */
+AdUi.prototype.setShowCountdown = function (showCountdownIn) {
+  this.showCountdown = showCountdownIn;
+  this.countdownDiv.style.display = this.showCountdown ? 'block' : 'none';
+};
+
+var name = "videojs-ima";
+var version = "2.1.0";
+var license = "Apache-2.0";
+var main = "./dist/videojs.ima.js";
+var module$1 = "./dist/videojs.ima.es.js";
+var author = { "name": "Google Inc." };
+var engines = { "node": ">=0.8.0" };
+var scripts = { "contBuild": "watch 'npm run rollup:max' src", "predevServer": "echo \"Starting up server on localhost:8000.\"", "devServer": "npm-run-all -p testServer contBuild", "lint": "eslint \"src/**/*.js\"", "rollup": "npm-run-all rollup:*", "rollup:max": "rollup -c configs/rollup.config.js", "rollup:es": "rollup -c configs/rollup.config.es.js", "rollup:min": "rollup -c configs/rollup.config.min.js", "pretest": "npm run rollup", "start": "npm run devServer", "test": "npm-run-all test:*", "test:vjs6": "npm install video.js@6 --no-save && npm-run-all -p -r testServer webdriver", "test:vjs7": "npm install video.js@7 --no-save && npm-run-all -p -r testServer webdriver", "testServer": "http-server --cors -p 8000 --silent", "preversion": "node scripts/preversion.js && npm run lint && npm test", "version": "node scripts/version.js", "postversion": "node scripts/postversion.js", "webdriver": "mocha test/webdriver/*.js --no-timeouts" };
+var repository = { "type": "git", "url": "https://github.com/googleads/videojs-ima" };
+var files = ["CHANGELOG.md", "LICENSE", "README.md", "dist/", "src/"];
+var peerDependencies = { "video.js": "^5.19.2 || ^6 || ^7" };
+var dependencies = { "@hapi/cryptiles": "^5.1.0", "can-autoplay": "^3.0.2", "extend": ">=3.0.2", "videojs-contrib-ads": "^6.9.0" };
+var devDependencies = { "axios": "^0.25.0", "babel-core": "^6.26.3", "babel-preset-env": "^1.7.0", "child_process": "^1.0.2", "chromedriver": "^102.0.0", "conventional-changelog-cli": "^2.2.2", "conventional-changelog-videojs": "^3.0.2", "ecstatic": "^4.1.4", "eslint": "^8.8.0", "eslint-config-google": "^0.9.1", "eslint-plugin-jsdoc": "^3.15.1", "geckodriver": "^2.0.4", "http-server": "^14.1.0", "ini": ">=1.3.7", "mocha": "^9.2.0", "npm-run-all": "^4.1.5", "path": "^0.12.7", "protractor": "^7.0.0", "rimraf": "^2.7.1", "rollup": "^0.51.8", "rollup-plugin-babel": "^3.0.7", "rollup-plugin-copy": "^0.2.3", "rollup-plugin-json": "^2.3.1", "rollup-plugin-uglify": "^2.0.1", "selenium-webdriver": "^3.6.0", "uglify-es": "^3.3.9", "video.js": "^7.17.0", "watch": "^0.13.0", "webdriver-manager": "^12.1.7", "xmldom": "^0.6.0" };
+var keywords = ["videojs", "videojs-plugin"];
+var pkg = {
+  name: name,
+  version: version,
+  license: license,
+  main: main,
+  module: module$1,
+  author: author,
+  engines: engines,
+  scripts: scripts,
+  repository: repository,
+  files: files,
+  peerDependencies: peerDependencies,
+  dependencies: dependencies,
+  devDependencies: devDependencies,
+  keywords: keywords
+};
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * IMA SDK integration plugin for Video.js. For more information see
+ * https://www.github.com/googleads/videojs-ima
+ */
+
+/**
+ * Implementation of the IMA SDK for the plugin.
+ *
+ * @param {Object} controller Reference to the parent controller.
+ *
+ * @constructor
+ * @struct
+ * @final
+ */
+var SdkImpl = function SdkImpl(controller) {
+  /**
+   * Plugin controller.
+   */
+  this.controller = controller;
+
+  /**
+   * IMA SDK AdDisplayContainer.
+   */
+  this.adDisplayContainer = null;
+
+  /**
+   * True if the AdDisplayContainer has been initialized. False otherwise.
+   */
+  this.adDisplayContainerInitialized = false;
+
+  /**
+   * IMA SDK AdsLoader
+   */
+  this.adsLoader = null;
+
+  /**
+   * IMA SDK AdsManager
+   */
+  this.adsManager = null;
+
+  /**
+   * IMA SDK AdsRenderingSettings.
+   */
+  this.adsRenderingSettings = null;
+
+  /**
+   * VAST, VMAP, or ad rules response. Used in lieu of fetching a response
+   * from an ad tag URL.
+   */
+  this.adsResponse = null;
+
+  /**
+   * Current IMA SDK Ad.
+   */
+  this.currentAd = null;
+
+  /**
+   * Timer used to track ad progress.
+   */
+  this.adTrackingTimer = null;
+
+  /**
+   * True if ALL_ADS_COMPLETED has fired, false until then.
+   */
+  this.allAdsCompleted = false;
+
+  /**
+   * True if ads are currently displayed, false otherwise.
+   * True regardless of ad pause state if an ad is currently being displayed.
+   */
+  this.adsActive = false;
+
+  /**
+   * True if ad is currently playing, false if ad is paused or ads are not
+   * currently displayed.
+   */
+  this.adPlaying = false;
+
+  /**
+   * True if the ad is muted, false otherwise.
+   */
+  this.adMuted = false;
+
+  /**
+   * Listener to be called to trigger manual ad break playback.
+   */
+  this.adBreakReadyListener = undefined;
+
+  /**
+   * Tracks whether or not we have already called adsLoader.contentComplete().
+   */
+  this.contentCompleteCalled = false;
+
+  /**
+   * True if the ad has timed out.
+   */
+  this.isAdTimedOut = false;
+
+  /**
+   * Stores the dimensions for the ads manager.
+   */
+  this.adsManagerDimensions = {
+    width: 0,
+    height: 0
+  };
+
+  /**
+   * Boolean flag to enable manual ad break playback.
+   */
+  this.autoPlayAdBreaks = true;
+  if (this.controller.getSettings().autoPlayAdBreaks === false) {
+    this.autoPlayAdBreaks = false;
+  }
+
+  // Set SDK settings from plugin settings.
+  if (this.controller.getSettings().locale) {
+    /* eslint no-undef: 'error' */
+    /* global google */
+    google.ima.settings.setLocale(this.controller.getSettings().locale);
+  }
+  if (this.controller.getSettings().disableFlashAds) {
+    google.ima.settings.setDisableFlashAds(this.controller.getSettings().disableFlashAds);
+  }
+  if (this.controller.getSettings().disableCustomPlaybackForIOS10Plus) {
+    google.ima.settings.setDisableCustomPlaybackForIOS10Plus(this.controller.getSettings().disableCustomPlaybackForIOS10Plus);
+  }
+
+  if (this.controller.getSettings().ppid) {
+    google.ima.settings.setPpid(this.controller.getSettings().ppid);
+  }
+
+  if (this.controller.getSettings().featureFlags) {
+    google.ima.settings.setFeatureFlags(this.controller.getSettings().featureFlags);
+  }
+};
+
+/**
+ * Creates and initializes the IMA SDK objects.
+ */
+SdkImpl.prototype.initAdObjects = function () {
+  this.adDisplayContainer = new google.ima.AdDisplayContainer(this.controller.getAdContainerDiv(), this.controller.getContentPlayer());
+
+  this.adsLoader = new google.ima.AdsLoader(this.adDisplayContainer);
+
+  this.adsLoader.getSettings().setVpaidMode(google.ima.ImaSdkSettings.VpaidMode.ENABLED);
+  if (this.controller.getSettings().vpaidAllowed == false) {
+    this.adsLoader.getSettings().setVpaidMode(google.ima.ImaSdkSettings.VpaidMode.DISABLED);
+  }
+  if (this.controller.getSettings().vpaidMode !== undefined) {
+    this.adsLoader.getSettings().setVpaidMode(this.controller.getSettings().vpaidMode);
+  }
+
+  if (this.controller.getSettings().locale) {
+    this.adsLoader.getSettings().setLocale(this.controller.getSettings().locale);
+  }
+
+  if (this.controller.getSettings().numRedirects) {
+    this.adsLoader.getSettings().setNumRedirects(this.controller.getSettings().numRedirects);
+  }
+
+  if (this.controller.getSettings().sessionId) {
+    this.adsLoader.getSettings().setSessionId(this.controller.getSettings().sessionId);
+  }
+
+  this.adsLoader.getSettings().setPlayerType('videojs-ima');
+  this.adsLoader.getSettings().setPlayerVersion(pkg.version);
+  this.adsLoader.getSettings().setAutoPlayAdBreaks(this.autoPlayAdBreaks);
+
+  this.adsLoader.addEventListener(google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED, this.onAdsManagerLoaded.bind(this), false);
+  this.adsLoader.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, this.onAdsLoaderError.bind(this), false);
+
+  this.controller.playerWrapper.vjsPlayer.trigger({
+    type: 'ads-loader',
+    adsLoader: this.adsLoader
+  });
+};
+
+/**
+ * Creates the AdsRequest and request ads through the AdsLoader.
+ */
+SdkImpl.prototype.requestAds = function () {
+  var adsRequest = new google.ima.AdsRequest();
+  if (this.controller.getSettings().adTagUrl) {
+    adsRequest.adTagUrl = this.controller.getSettings().adTagUrl;
+  } else {
+    adsRequest.adsResponse = this.controller.getSettings().adsResponse;
+  }
+  if (this.controller.getSettings().forceNonLinearFullSlot) {
+    adsRequest.forceNonLinearFullSlot = true;
+  }
+
+  if (this.controller.getSettings().vastLoadTimeout) {
+    adsRequest.vastLoadTimeout = this.controller.getSettings().vastLoadTimeout;
+  }
+
+  if (this.controller.getSettings().omidMode) {
+    window.console.warn('The additional setting `omidMode` has been removed. ' + 'Use `omidVendorAccess` instead.');
+  }
+
+  if (this.controller.getSettings().omidVendorAccess) {
+    adsRequest.omidAccessModeRules = {};
+    var omidVendorValues = this.controller.getSettings().omidVendorAccess;
+
+    Object.keys(omidVendorValues).forEach(function (vendorKey) {
+      adsRequest.omidAccessModeRules[vendorKey] = omidVendorValues[vendorKey];
+    });
+  }
+
+  adsRequest.linearAdSlotWidth = this.controller.getPlayerWidth();
+  adsRequest.linearAdSlotHeight = this.controller.getPlayerHeight();
+  adsRequest.nonLinearAdSlotWidth = this.controller.getSettings().nonLinearWidth || this.controller.getPlayerWidth();
+  adsRequest.nonLinearAdSlotHeight = this.controller.getSettings().nonLinearHeight || this.controller.getPlayerHeight();
+  adsRequest.setAdWillAutoPlay(this.controller.adsWillAutoplay());
+  adsRequest.setAdWillPlayMuted(this.controller.adsWillPlayMuted());
+
+  // Populate the adsRequestproperties with those provided in the AdsRequest
+  // object in the settings.
+  var providedAdsRequest = this.controller.getSettings().adsRequest;
+  if (providedAdsRequest && (typeof providedAdsRequest === 'undefined' ? 'undefined' : _typeof(providedAdsRequest)) === 'object') {
+    Object.keys(providedAdsRequest).forEach(function (key) {
+      adsRequest[key] = providedAdsRequest[key];
+    });
+  }
+
+  this.adsLoader.requestAds(adsRequest);
+  this.controller.playerWrapper.vjsPlayer.trigger({
+    type: 'ads-request',
+    AdsRequest: adsRequest
+  });
+};
+
+/**
+ * Listener for the ADS_MANAGER_LOADED event. Creates the AdsManager,
+ * sets up event listeners, and triggers the 'adsready' event for
+ * videojs-ads-contrib.
+ *
+ * @param {google.ima.AdsManagerLoadedEvent} adsManagerLoadedEvent Fired when
+ *     the AdsManager loads.
+ */
+SdkImpl.prototype.onAdsManagerLoaded = function (adsManagerLoadedEvent) {
+  this.createAdsRenderingSettings();
+
+  this.adsManager = adsManagerLoadedEvent.getAdsManager(this.controller.getContentPlayheadTracker(), this.adsRenderingSettings);
+
+  this.adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, this.onAdError.bind(this));
+  this.adsManager.addEventListener(google.ima.AdEvent.Type.AD_BREAK_READY, this.onAdBreakReady.bind(this));
+  this.adsManager.addEventListener(google.ima.AdEvent.Type.CONTENT_PAUSE_REQUESTED, this.onContentPauseRequested.bind(this));
+  this.adsManager.addEventListener(google.ima.AdEvent.Type.CONTENT_RESUME_REQUESTED, this.onContentResumeRequested.bind(this));
+  this.adsManager.addEventListener(google.ima.AdEvent.Type.ALL_ADS_COMPLETED, this.onAllAdsCompleted.bind(this));
+
+  this.adsManager.addEventListener(google.ima.AdEvent.Type.LOADED, this.onAdLoaded.bind(this));
+  this.adsManager.addEventListener(google.ima.AdEvent.Type.STARTED, this.onAdStarted.bind(this));
+  this.adsManager.addEventListener(google.ima.AdEvent.Type.COMPLETE, this.onAdComplete.bind(this));
+  this.adsManager.addEventListener(google.ima.AdEvent.Type.SKIPPED, this.onAdComplete.bind(this));
+  this.adsManager.addEventListener(google.ima.AdEvent.Type.LOG, this.onAdLog.bind(this));
+  this.adsManager.addEventListener(google.ima.AdEvent.Type.PAUSED, this.onAdPaused.bind(this));
+  this.adsManager.addEventListener(google.ima.AdEvent.Type.RESUMED, this.onAdResumed.bind(this));
+
+  this.controller.playerWrapper.vjsPlayer.trigger({
+    type: 'ads-manager',
+    adsManager: this.adsManager
+  });
+
+  if (!this.autoPlayAdBreaks) {
+    this.initAdsManager();
+  }
+
+  var _controller$getSettin = this.controller.getSettings(),
+      preventLateAdStart = _controller$getSettin.preventLateAdStart;
+
+  if (!preventLateAdStart) {
+    this.controller.onAdsReady();
+  } else if (preventLateAdStart && !this.isAdTimedOut) {
+    this.controller.onAdsReady();
+  }
+
+  if (this.controller.getSettings().adsManagerLoadedCallback) {
+    this.controller.getSettings().adsManagerLoadedCallback();
+  }
+};
+
+/**
+ * Listener for errors fired by the AdsLoader.
+ * @param {google.ima.AdErrorEvent} event The error event thrown by the
+ *     AdsLoader. See
+ *     https://developers.google.com/interactive-media-ads/docs/sdks/html5/client-side/reference/js/google.ima.AdError#.Type
+ */
+SdkImpl.prototype.onAdsLoaderError = function (event) {
+  window.console.warn('AdsLoader error: ' + event.getError());
+  this.controller.onErrorLoadingAds(event);
+  if (this.adsManager) {
+    this.adsManager.destroy();
+  }
+};
+
+/**
+ * Initialize the ads manager.
+ */
+SdkImpl.prototype.initAdsManager = function () {
+  try {
+    var initWidth = this.controller.getPlayerWidth();
+    var initHeight = this.controller.getPlayerHeight();
+    this.adsManagerDimensions.width = initWidth;
+    this.adsManagerDimensions.height = initHeight;
+    this.adsManager.init(initWidth, initHeight, google.ima.ViewMode.NORMAL);
+    this.adsManager.setVolume(this.controller.getPlayerVolume());
+    this.initializeAdDisplayContainer();
+  } catch (adError) {
+    this.onAdError(adError);
+  }
+};
+
+/**
+ * Create AdsRenderingSettings for the IMA SDK.
+ */
+SdkImpl.prototype.createAdsRenderingSettings = function () {
+  this.adsRenderingSettings = new google.ima.AdsRenderingSettings();
+  this.adsRenderingSettings.restoreCustomPlaybackStateOnAdBreakComplete = true;
+  if (this.controller.getSettings().adsRenderingSettings) {
+    for (var setting in this.controller.getSettings().adsRenderingSettings) {
+      if (setting !== '') {
+        this.adsRenderingSettings[setting] = this.controller.getSettings().adsRenderingSettings[setting];
+      }
+    }
+  }
+};
+
+/**
+ * Listener for errors thrown by the AdsManager.
+ * @param {google.ima.AdErrorEvent} adErrorEvent The error event thrown by
+ *     the AdsManager.
+ */
+SdkImpl.prototype.onAdError = function (adErrorEvent) {
+  var errorMessage = adErrorEvent.getError !== undefined ? adErrorEvent.getError() : adErrorEvent.stack;
+  window.console.warn('Ad error: ' + errorMessage);
+
+  this.adsManager.destroy();
+  this.controller.onAdError(adErrorEvent);
+
+  // reset these so consumers don't think we are still in an ad break,
+  // but reset them after any prior cleanup happens
+  this.adsActive = false;
+  this.adPlaying = false;
+};
+
+/**
+ * Listener for AD_BREAK_READY. Passes event on to publisher's listener.
+ * @param {google.ima.AdEvent} adEvent AdEvent thrown by the AdsManager.
+ */
+SdkImpl.prototype.onAdBreakReady = function (adEvent) {
+  this.adBreakReadyListener(adEvent);
+};
+
+/**
+ * Pauses the content video and displays the ad container so ads can play.
+ * @param {google.ima.AdEvent} adEvent The AdEvent thrown by the AdsManager.
+ */
+SdkImpl.prototype.onContentPauseRequested = function (adEvent) {
+  this.adsActive = true;
+  this.adPlaying = true;
+  this.controller.onAdBreakStart(adEvent);
+};
+
+/**
+ * Resumes content video and hides the ad container.
+ * @param {google.ima.AdEvent} adEvent The AdEvent thrown by the AdsManager.
+ */
+SdkImpl.prototype.onContentResumeRequested = function (adEvent) {
+  this.adsActive = false;
+  this.adPlaying = false;
+  this.controller.onAdBreakEnd();
+  // Hide controls in case of future non-linear ads. They'll be unhidden in
+  // content_pause_requested.
+};
+
+/**
+ * Records that ads have completed and calls contentAndAdsEndedListeners
+ * if content is also complete.
+ * @param {google.ima.AdEvent} adEvent The AdEvent thrown by the AdsManager.
+ */
+SdkImpl.prototype.onAllAdsCompleted = function (adEvent) {
+  this.allAdsCompleted = true;
+  this.controller.onAllAdsCompleted();
+};
+
+/**
+ * Starts the content video when a non-linear ad is loaded.
+ * @param {google.ima.AdEvent} adEvent The AdEvent thrown by the AdsManager.
+ */
+SdkImpl.prototype.onAdLoaded = function (adEvent) {
+  if (!adEvent.getAd().isLinear()) {
+    this.controller.onNonLinearAdLoad();
+    this.controller.playContent();
+  }
+};
+
+/**
+ * Starts the interval timer to check the current ad time when an ad starts
+ * playing.
+ * @param {google.ima.AdEvent} adEvent The AdEvent thrown by the AdsManager.
+ */
+SdkImpl.prototype.onAdStarted = function (adEvent) {
+  this.currentAd = adEvent.getAd();
+  if (this.currentAd.isLinear()) {
+    this.adTrackingTimer = setInterval(this.onAdPlayheadTrackerInterval.bind(this), 250);
+    this.controller.onLinearAdStart();
+  } else {
+    this.controller.onNonLinearAdStart();
+  }
+};
+
+/**
+ * Handles an ad click. Puts the player UI in a paused state.
+ */
+SdkImpl.prototype.onAdPaused = function () {
+  this.controller.onAdsPaused();
+};
+
+/**
+ * Syncs controls when an ad resumes.
+ * @param {google.ima.AdEvent} adEvent The AdEvent thrown by the AdsManager.
+ */
+SdkImpl.prototype.onAdResumed = function (adEvent) {
+  this.controller.onAdsResumed();
+};
+
+/**
+ * Clears the interval timer for current ad time when an ad completes.
+ */
+SdkImpl.prototype.onAdComplete = function () {
+  if (this.currentAd.isLinear()) {
+    clearInterval(this.adTrackingTimer);
+  }
+};
+
+/**
+ * Handles ad log messages.
+ * @param {google.ima.AdEvent} adEvent The AdEvent thrown by the AdsManager.
+ */
+SdkImpl.prototype.onAdLog = function (adEvent) {
+  this.controller.onAdLog(adEvent);
+};
+
+/**
+ * Gets the current time and duration of the ad and calls the method to
+ * update the ad UI.
+ */
+SdkImpl.prototype.onAdPlayheadTrackerInterval = function () {
+  if (this.adsManager === null) return;
+  var remainingTime = this.adsManager.getRemainingTime();
+  var duration = this.currentAd.getDuration();
+  var currentTime = duration - remainingTime;
+  currentTime = currentTime > 0 ? currentTime : 0;
+  var totalAds = 0;
+  var adPosition = void 0;
+  if (this.currentAd.getAdPodInfo()) {
+    adPosition = this.currentAd.getAdPodInfo().getAdPosition();
+    totalAds = this.currentAd.getAdPodInfo().getTotalAds();
+  }
+
+  this.controller.onAdPlayheadUpdated(currentTime, remainingTime, duration, adPosition, totalAds);
+};
+
+/**
+ * Called by the player wrapper when content completes.
+ */
+SdkImpl.prototype.onContentComplete = function () {
+  if (this.adsLoader) {
+    this.adsLoader.contentComplete();
+    this.contentCompleteCalled = true;
+  }
+
+  if (this.adsManager && this.adsManager.getCuePoints() && !this.adsManager.getCuePoints().includes(-1) || !this.adsManager) {
+    this.controller.onNoPostroll();
+  }
+
+  if (this.allAdsCompleted) {
+    this.controller.onContentAndAdsCompleted();
+  }
+};
+
+/**
+ * Called when the player is disposed.
+ */
+SdkImpl.prototype.onPlayerDisposed = function () {
+  if (this.adTrackingTimer) {
+    clearInterval(this.adTrackingTimer);
+  }
+  if (this.adsManager) {
+    this.adsManager.destroy();
+    this.adsManager = null;
+  }
+};
+
+SdkImpl.prototype.onPlayerReadyForPreroll = function () {
+  if (this.autoPlayAdBreaks) {
+    this.initAdsManager();
+    try {
+      this.controller.showAdContainer();
+      // Sync ad volume with content volume.
+      this.adsManager.setVolume(this.controller.getPlayerVolume());
+      this.adsManager.start();
+    } catch (adError) {
+      this.onAdError(adError);
+    }
+  }
+};
+
+SdkImpl.prototype.onAdTimeout = function () {
+  this.isAdTimedOut = true;
+};
+
+SdkImpl.prototype.onPlayerReady = function () {
+  this.initAdObjects();
+
+  if ((this.controller.getSettings().adTagUrl || this.controller.getSettings().adsResponse) && this.controller.getSettings().requestMode === 'onLoad') {
+    this.requestAds();
+  }
+};
+
+SdkImpl.prototype.onPlayerEnterFullscreen = function () {
+  if (this.adsManager) {
+    this.adsManager.resize(window.screen.width, window.screen.height, google.ima.ViewMode.FULLSCREEN);
+  }
+};
+
+SdkImpl.prototype.onPlayerExitFullscreen = function () {
+  if (this.adsManager) {
+    this.adsManager.resize(this.controller.getPlayerWidth(), this.controller.getPlayerHeight(), google.ima.ViewMode.NORMAL);
+  }
+};
+
+/**
+ * Called when the player volume changes.
+ *
+ * @param {number} volume The new player volume.
+ */
+SdkImpl.prototype.onPlayerVolumeChanged = function (volume) {
+  if (this.adsManager) {
+    this.adsManager.setVolume(volume);
+  }
+
+  if (volume == 0) {
+    this.adMuted = true;
+  } else {
+    this.adMuted = false;
+  }
+};
+
+/**
+ * Called when the player wrapper detects that the player has been resized.
+ *
+ * @param {number} width The post-resize width of the player.
+ * @param {number} height The post-resize height of the player.
+ */
+SdkImpl.prototype.onPlayerResize = function (width, height) {
+  if (this.adsManager) {
+    this.adsManagerDimensions.width = width;
+    this.adsManagerDimensions.height = height;
+    /* eslint no-undef: 'error' */
+    this.adsManager.resize(width, height, google.ima.ViewMode.NORMAL);
+  }
+};
+
+/**
+ * @return {Object} The current ad.
+ */
+SdkImpl.prototype.getCurrentAd = function () {
+  return this.currentAd;
+};
+
+/**
+ * Listener JSDoc for ESLint. This listener can be passed to
+ * setAdBreakReadyListener.
+ * @callback listener
+ */
+
+/**
+ * Sets the listener to be called to trigger manual ad break playback.
+ * @param {listener} listener The listener to be called to trigger manual ad
+ *     break playback.
+ */
+SdkImpl.prototype.setAdBreakReadyListener = function (listener) {
+  this.adBreakReadyListener = listener;
+};
+
+/**
+ * @return {boolean} True if an ad is currently playing. False otherwise.
+ */
+SdkImpl.prototype.isAdPlaying = function () {
+  return this.adPlaying;
+};
+
+/**
+ * @return {boolean} True if an ad is currently playing. False otherwise.
+ */
+SdkImpl.prototype.isAdMuted = function () {
+  return this.adMuted;
+};
+
+/**
+ * Pause ads.
+ */
+SdkImpl.prototype.pauseAds = function () {
+  this.adsManager.pause();
+  this.adPlaying = false;
+};
+
+/**
+ * Resume ads.
+ */
+SdkImpl.prototype.resumeAds = function () {
+  this.adsManager.resume();
+  this.adPlaying = true;
+};
+
+/**
+ * Unmute ads.
+ */
+SdkImpl.prototype.unmute = function () {
+  this.adsManager.setVolume(1);
+  this.adMuted = false;
+};
+
+/**
+ * Mute ads.
+ */
+SdkImpl.prototype.mute = function () {
+  this.adsManager.setVolume(0);
+  this.adMuted = true;
+};
+
+/**
+ * Set the volume of the ads. 0-1.
+ *
+ * @param {number} volume The new volume.
+ */
+SdkImpl.prototype.setVolume = function (volume) {
+  this.adsManager.setVolume(volume);
+  if (volume == 0) {
+    this.adMuted = true;
+  } else {
+    this.adMuted = false;
+  }
+};
+
+/**
+ * Initializes the AdDisplayContainer. On mobile, this must be done as a
+ * result of user action.
+ */
+SdkImpl.prototype.initializeAdDisplayContainer = function () {
+  if (this.adDisplayContainer) {
+    if (!this.adDisplayContainerInitialized) {
+      this.adDisplayContainer.initialize();
+      this.adDisplayContainerInitialized = true;
+    }
+  }
+};
+
+/**
+ * Called by publishers in manual ad break playback mode to start an ad
+ * break.
+ */
+SdkImpl.prototype.playAdBreak = function () {
+  if (!this.autoPlayAdBreaks) {
+    this.controller.showAdContainer();
+    // Sync ad volume with content volume.
+    this.adsManager.setVolume(this.controller.getPlayerVolume());
+    this.adsManager.start();
+  }
+};
+
+/**
+ * Callback JSDoc for ESLint. This callback can be passed to addEventListener.
+ * @callback callback
+ */
+
+/**
+ * Ads an EventListener to the AdsManager. For a list of available events,
+ * see
+ * https://developers.google.com/interactive-media-ads/docs/sdks/html5/client-side/reference/js/google.ima.AdEvent#.Type
+ * @param {google.ima.AdEvent.Type} event The AdEvent.Type for which to
+ *     listen.
+ * @param {callback} callback The method to call when the event is fired.
+ */
+SdkImpl.prototype.addEventListener = function (event, callback) {
+  if (this.adsManager) {
+    this.adsManager.addEventListener(event, callback);
+  }
+};
+
+/**
+ * Returns the instance of the AdsManager.
+ * @return {google.ima.AdsManager} The AdsManager being used by the plugin.
+ */
+SdkImpl.prototype.getAdsManager = function () {
+  return this.adsManager;
+};
+
+/**
+ * Reset the SDK implementation.
+ */
+SdkImpl.prototype.reset = function () {
+  this.adsActive = false;
+  this.adPlaying = false;
+  if (this.adTrackingTimer) {
+    // If this is called while an ad is playing, stop trying to get that
+    // ad's current time.
+    clearInterval(this.adTrackingTimer);
+  }
+  if (this.adsManager) {
+    this.adsManager.destroy();
+    this.adsManager = null;
+  }
+  if (this.adsLoader && !this.contentCompleteCalled) {
+    this.adsLoader.contentComplete();
+  }
+  this.contentCompleteCalled = false;
+  this.allAdsCompleted = false;
+};
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * IMA SDK integration plugin for Video.js. For more information see
+ * https://www.github.com/googleads/videojs-ima
+ */
+/**
+ * The grand coordinator of the plugin. Facilitates communication between all
+ * other plugin classes.
+ *
+ * @param {Object} player Instance of the video.js player.
+ * @param {Object} options Options provided by the implementation.
+ * @constructor
+ * @struct
+ * @final
+ */
+var Controller = function Controller(player, options) {
+  /**
+   * Stores user-provided settings.
+   * @type {Object}
+   */
+  this.settings = {};
+
+  /**
+   * Content and ads ended listeners passed by the publisher to the plugin.
+   * These will be called when the plugin detects that content *and all
+   * ads* have completed. This differs from the contentEndedListeners in that
+   * contentEndedListeners will fire between content ending and a post-roll
+   * playing, whereas the contentAndAdsEndedListeners will fire after the
+   * post-roll completes.
+   */
+  this.contentAndAdsEndedListeners = [];
+
+  /**
+   * Whether or not we are running on a mobile platform.
+   */
+  this.isMobile = navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i) || navigator.userAgent.match(/Android/i);
+
+  /**
+   * Whether or not we are running on an iOS platform.
+   */
+  this.isIos = navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i);
+
+  this.initWithSettings(options);
+
+  /**
+   * Stores contrib-ads default settings.
+   */
+  var contribAdsDefaults = {
+    debug: this.settings.debug,
+    timeout: this.settings.timeout,
+    prerollTimeout: this.settings.prerollTimeout
+  };
+  var adsPluginSettings = Object.assign({}, contribAdsDefaults, options.contribAdsSettings || {});
+
+  this.playerWrapper = new PlayerWrapper(player, adsPluginSettings, this);
+  this.adUi = new AdUi(this);
+  this.sdkImpl = new SdkImpl(this);
+};
+
+Controller.IMA_DEFAULTS = {
+  adLabel: 'Advertisement',
+  adLabelNofN: 'of',
+  debug: false,
+  disableAdControls: false,
+  prerollTimeout: 1000,
+  preventLateAdStart: false,
+  requestMode: 'onLoad',
+  showControlsForJSAds: true,
+  timeout: 5000
+};
+
+/**
+ * Extends the settings to include user-provided settings.
+ *
+ * @param {Object} options Options to be used in initialization.
+ */
+Controller.prototype.initWithSettings = function (options) {
+  this.settings = Object.assign({}, Controller.IMA_DEFAULTS, options || {});
+
+  this.warnAboutDeprecatedSettings();
+
+  // Default showing countdown timer to true.
+  this.showCountdown = true;
+  if (this.settings.showCountdown === false) {
+    this.showCountdown = false;
+  }
+};
+
+/**
+ * Logs console warnings when deprecated settings are used.
+ */
+Controller.prototype.warnAboutDeprecatedSettings = function () {
+  var _this = this;
+
+  var deprecatedSettings = ['adWillAutoplay', 'adsWillAutoplay', 'adWillPlayMuted', 'adsWillPlayMuted'];
+  deprecatedSettings.forEach(function (setting) {
+    if (_this.settings[setting] !== undefined) {
+      console.warn('WARNING: videojs.ima setting ' + setting + ' is deprecated');
+    }
+  });
+};
+
+/**
+ * Return the settings object.
+ *
+ * @return {Object} The settings object.
+ */
+Controller.prototype.getSettings = function () {
+  return this.settings;
+};
+
+/**
+ * Return whether or not we're in a mobile environment.
+ *
+ * @return {boolean} True if running on mobile, false otherwise.
+ */
+Controller.prototype.getIsMobile = function () {
+  return this.isMobile;
+};
+
+/**
+ * Return whether or not we're in an iOS environment.
+ *
+ * @return {boolean} True if running on iOS, false otherwise.
+ */
+Controller.prototype.getIsIos = function () {
+  return this.isIos;
+};
+
+/**
+ * Inject the ad container div into the DOM.
+ *
+ * @param{HTMLElement} adContainerDiv The ad container div.
+ */
+Controller.prototype.injectAdContainerDiv = function (adContainerDiv) {
+  this.playerWrapper.injectAdContainerDiv(adContainerDiv);
+};
+
+/**
+ * @return {HTMLElement} The div for the ad container.
+ */
+Controller.prototype.getAdContainerDiv = function () {
+  return this.adUi.getAdContainerDiv();
+};
+
+/**
+ * @return {Object} The content player.
+ */
+Controller.prototype.getContentPlayer = function () {
+  return this.playerWrapper.getContentPlayer();
+};
+
+/**
+ * Returns the content playhead tracker.
+ *
+ * @return {Object} The content playhead tracker.
+ */
+Controller.prototype.getContentPlayheadTracker = function () {
+  return this.playerWrapper.getContentPlayheadTracker();
+};
+
+/**
+ * Requests ads.
+ */
+Controller.prototype.requestAds = function () {
+  this.sdkImpl.requestAds();
+};
+
+/**
+ * Add or modify a setting.
+ *
+ * @param {string} key Key to modify
+ * @param {Object} value Value to set at key.
+ */
+Controller.prototype.setSetting = function (key, value) {
+  this.settings[key] = value;
+};
+
+/**
+ * Called when there is an error loading ads.
+ *
+ * @param {Object} adErrorEvent The ad error event thrown by the IMA SDK.
+ */
+Controller.prototype.onErrorLoadingAds = function (adErrorEvent) {
+  this.adUi.onAdError();
+  this.playerWrapper.onAdError(adErrorEvent);
+};
+
+/**
+ * Called by the ad UI when the play/pause button is clicked.
+ */
+Controller.prototype.onAdPlayPauseClick = function () {
+  if (this.sdkImpl.isAdPlaying()) {
+    this.adUi.onAdsPaused();
+    this.sdkImpl.pauseAds();
+  } else {
+    this.adUi.onAdsPlaying();
+    this.sdkImpl.resumeAds();
+  }
+};
+
+/**
+ * Called by the ad UI when the mute button is clicked.
+ *
+ */
+Controller.prototype.onAdMuteClick = function () {
+  if (this.sdkImpl.isAdMuted()) {
+    this.playerWrapper.unmute();
+    this.adUi.unmute();
+    this.sdkImpl.unmute();
+  } else {
+    this.playerWrapper.mute();
+    this.adUi.mute();
+    this.sdkImpl.mute();
+  }
+};
+
+/**
+ * Set the volume of the player and ads. 0-1.
+ *
+ * @param {number} volume The new volume.
+ */
+Controller.prototype.setVolume = function (volume) {
+  this.playerWrapper.setVolume(volume);
+  this.sdkImpl.setVolume(volume);
+};
+
+/**
+ * @return {number} The volume of the content player.
+ */
+Controller.prototype.getPlayerVolume = function () {
+  return this.playerWrapper.getVolume();
+};
+
+/**
+ * Toggle fullscreen state.
+ */
+Controller.prototype.toggleFullscreen = function () {
+  this.playerWrapper.toggleFullscreen();
+};
+
+/**
+ * Relays ad errors to the player wrapper.
+ *
+ * @param {Object} adErrorEvent The ad error event thrown by the IMA SDK.
+ */
+Controller.prototype.onAdError = function (adErrorEvent) {
+  this.adUi.onAdError();
+  this.playerWrapper.onAdError(adErrorEvent);
+};
+
+/**
+ * Handles ad break starting.
+ *
+ * @param {Object} adEvent The event fired by the IMA SDK.
+ */
+Controller.prototype.onAdBreakStart = function (adEvent) {
+  this.playerWrapper.onAdBreakStart();
+  this.adUi.onAdBreakStart(adEvent);
+};
+
+/**
+ * Show the ad container.
+ */
+Controller.prototype.showAdContainer = function () {
+  this.adUi.showAdContainer();
+};
+
+/**
+ * Handles ad break ending.
+ */
+Controller.prototype.onAdBreakEnd = function () {
+  this.playerWrapper.onAdBreakEnd();
+  this.adUi.onAdBreakEnd();
+};
+
+/**
+ * Handles when all ads have finished playing.
+ */
+Controller.prototype.onAllAdsCompleted = function () {
+  this.adUi.onAllAdsCompleted();
+  this.playerWrapper.onAllAdsCompleted();
+};
+
+/**
+ * Handles the SDK firing an ad paused event.
+ */
+Controller.prototype.onAdsPaused = function () {
+  this.adUi.onAdsPaused();
+};
+
+/**
+ * Handles the SDK firing an ad resumed event.
+ */
+Controller.prototype.onAdsResumed = function () {
+  this.adUi.onAdsResumed();
+};
+
+/**
+ * Takes data from the sdk impl and passes it to the ad UI to update the UI.
+ *
+ * @param {number} currentTime Current time of the ad.
+ * @param {number} remainingTime Remaining time of the ad.
+ * @param {number} duration Duration of the ad.
+ * @param {number} adPosition Index of the ad in the pod.
+ * @param {number} totalAds Total number of ads in the pod.
+ */
+Controller.prototype.onAdPlayheadUpdated = function (currentTime, remainingTime, duration, adPosition, totalAds) {
+  this.adUi.updateAdUi(currentTime, remainingTime, duration, adPosition, totalAds);
+};
+
+/**
+ * Handles ad log messages.
+ * @param {google.ima.AdEvent} adEvent The AdEvent thrown by the IMA SDK.
+ */
+Controller.prototype.onAdLog = function (adEvent) {
+  this.playerWrapper.onAdLog(adEvent);
+};
+
+/**
+ * @return {Object} The current ad.
+ */
+Controller.prototype.getCurrentAd = function () {
+  return this.sdkImpl.getCurrentAd();
+};
+
+/**
+ * Play content.
+ */
+Controller.prototype.playContent = function () {
+  this.playerWrapper.play();
+};
+
+/**
+ * Handles when a linear ad starts.
+ */
+Controller.prototype.onLinearAdStart = function () {
+  this.adUi.onLinearAdStart();
+  this.playerWrapper.onAdStart();
+};
+
+/**
+ * Handles when a non-linear ad loads.
+ */
+Controller.prototype.onNonLinearAdLoad = function () {
+  this.adUi.onNonLinearAdLoad();
+};
+
+/**
+ * Handles when a non-linear ad starts.
+ */
+Controller.prototype.onNonLinearAdStart = function () {
+  this.adUi.onNonLinearAdLoad();
+  this.playerWrapper.onAdStart();
+};
+
+/**
+ * Get the player width.
+ *
+ * @return {number} The width of the player.
+ */
+Controller.prototype.getPlayerWidth = function () {
+  return this.playerWrapper.getPlayerWidth();
+};
+
+/**
+ * Get the player height.
+ *
+ * @return {number} The height of the player.
+ */
+Controller.prototype.getPlayerHeight = function () {
+  return this.playerWrapper.getPlayerHeight();
+};
+
+/**
+ * Tells the player wrapper that ads are ready.
+ */
+Controller.prototype.onAdsReady = function () {
+  this.playerWrapper.onAdsReady();
+};
+
+/**
+ * Called when the player wrapper detects that the player has been resized.
+ *
+ * @param {number} width The post-resize width of the player.
+ * @param {number} height The post-resize height of the player.
+ */
+Controller.prototype.onPlayerResize = function (width, height) {
+  this.sdkImpl.onPlayerResize(width, height);
+};
+
+/**
+ * Called by the player wrapper when content completes.
+ */
+Controller.prototype.onContentComplete = function () {
+  this.sdkImpl.onContentComplete();
+};
+
+/**
+ * Called by the player wrapper when it's time to play a post-roll but we don't
+ * have one to play.
+ */
+Controller.prototype.onNoPostroll = function () {
+  this.playerWrapper.onNoPostroll();
+};
+
+/**
+ * Called when content and all ads have completed.
+ */
+Controller.prototype.onContentAndAdsCompleted = function () {
+  for (var index in this.contentAndAdsEndedListeners) {
+    if (typeof this.contentAndAdsEndedListeners[index] === 'function') {
+      this.contentAndAdsEndedListeners[index]();
+    }
+  }
+};
+
+/**
+ * Called when the player is disposed.
+ */
+Controller.prototype.onPlayerDisposed = function () {
+  this.contentAndAdsEndedListeners = [];
+  this.sdkImpl.onPlayerDisposed();
+};
+
+/**
+ * Called when the player is ready to play a pre-roll.
+ */
+Controller.prototype.onPlayerReadyForPreroll = function () {
+  this.sdkImpl.onPlayerReadyForPreroll();
+};
+
+/**
+ * Called if the ad times out.
+ */
+Controller.prototype.onAdTimeout = function () {
+  this.sdkImpl.onAdTimeout();
+};
+
+/**
+ * Called when the player is ready.
+ */
+Controller.prototype.onPlayerReady = function () {
+  this.sdkImpl.onPlayerReady();
+};
+
+/**
+ * Called when the player enters fullscreen.
+ */
+Controller.prototype.onPlayerEnterFullscreen = function () {
+  this.adUi.onPlayerEnterFullscreen();
+  this.sdkImpl.onPlayerEnterFullscreen();
+};
+
+/**
+ * Called when the player exits fullscreen.
+ */
+Controller.prototype.onPlayerExitFullscreen = function () {
+  this.adUi.onPlayerExitFullscreen();
+  this.sdkImpl.onPlayerExitFullscreen();
+};
+
+/**
+ * Called when the player volume changes.
+ *
+ * @param {number} volume The new player volume.
+ */
+Controller.prototype.onPlayerVolumeChanged = function (volume) {
+  this.adUi.onPlayerVolumeChanged(volume);
+  this.sdkImpl.onPlayerVolumeChanged(volume);
+};
+
+/**
+ * Sets the content of the video player. You should use this method instead
+ * of setting the content src directly to ensure the proper ad tag is
+ * requested when the video content is loaded.
+ * @param {?string} contentSrc The URI for the content to be played. Leave
+ *     blank to use the existing content.
+ * @param {?string} adTag The ad tag to be requested when the content loads.
+ *     Leave blank to use the existing ad tag.
+ */
+Controller.prototype.setContentWithAdTag = function (contentSrc, adTag) {
+  this.reset();
+  this.settings.adTagUrl = adTag ? adTag : this.settings.adTagUrl;
+  this.playerWrapper.changeSource(contentSrc);
+};
+
+/**
+ * Sets the content of the video player. You should use this method instead
+ * of setting the content src directly to ensure the proper ads response is
+ * used when the video content is loaded.
+ * @param {?string} contentSrc The URI for the content to be played. Leave
+ *     blank to use the existing content.
+ * @param {?string} adsResponse The ads response to be requested when the
+ *     content loads. Leave blank to use the existing ads response.
+ */
+Controller.prototype.setContentWithAdsResponse = function (contentSrc, adsResponse) {
+  this.reset();
+  this.settings.adsResponse = adsResponse ? adsResponse : this.settings.adsResponse;
+  this.playerWrapper.changeSource(contentSrc);
+};
+
+/**
+ * Sets the content of the video player. You should use this method instead
+ * of setting the content src directly to ensure the proper ads request is
+ * used when the video content is loaded.
+ * @param {?string} contentSrc The URI for the content to be played. Leave
+ *     blank to use the existing content.
+ * @param {?Object} adsRequest The ads request to be requested when the
+ *     content loads. Leave blank to use the existing ads request.
+ */
+Controller.prototype.setContentWithAdsRequest = function (contentSrc, adsRequest) {
+  this.reset();
+  this.settings.adsRequest = adsRequest ? adsRequest : this.settings.adsRequest;
+  this.playerWrapper.changeSource(contentSrc);
+};
+
+/**
+ * Resets the state of the plugin.
+ */
+Controller.prototype.reset = function () {
+  this.sdkImpl.reset();
+  this.playerWrapper.reset();
+  this.adUi.reset();
+};
+
+/**
+ * Listener JSDoc for ESLint. This listener can be passed to
+ * (add|remove)ContentEndedListener.
+ * @callback listener
+ */
+
+/**
+ * Adds a listener for the 'contentended' event of the video player. This should
+ * be used instead of setting an 'contentended' listener directly to ensure that
+ * the ima can do proper cleanup of the SDK before other event listeners are
+ * called.
+ * @param {listener} listener The listener to be called when content
+ *     completes.
+ */
+Controller.prototype.addContentEndedListener = function (listener) {
+  this.playerWrapper.addContentEndedListener(listener);
+};
+
+/**
+ * Adds a listener that will be called when content and all ads have
+ * finished playing.
+ * @param {listener} listener The listener to be called when content and ads
+ *     complete.
+ */
+Controller.prototype.addContentAndAdsEndedListener = function (listener) {
+  this.contentAndAdsEndedListeners.push(listener);
+};
+
+/**
+ * Sets the listener to be called to trigger manual ad break playback.
+ * @param {listener} listener The listener to be called to trigger manual ad
+ *     break playback.
+ */
+Controller.prototype.setAdBreakReadyListener = function (listener) {
+  this.sdkImpl.setAdBreakReadyListener(listener);
+};
+
+/**
+ * Changes the flag to show or hide the ad countdown timer.
+ *
+ * @param {boolean} showCountdownIn Show or hide the countdown timer.
+ */
+Controller.prototype.setShowCountdown = function (showCountdownIn) {
+  this.adUi.setShowCountdown(showCountdownIn);
+  this.showCountdown = showCountdownIn;
+  this.adUi.countdownDiv.style.display = this.showCountdown ? 'block' : 'none';
+};
+
+/**
+ * Initializes the AdDisplayContainer. On mobile, this must be done as a
+ * result of user action.
+ */
+Controller.prototype.initializeAdDisplayContainer = function () {
+  this.sdkImpl.initializeAdDisplayContainer();
+};
+
+/**
+ * Called by publishers in manual ad break playback mode to start an ad
+ * break.
+ */
+Controller.prototype.playAdBreak = function () {
+  this.sdkImpl.playAdBreak();
+};
+
+/**
+ * Callback JSDoc for ESLint. This callback can be passed to addEventListener.
+ * @callback callback
+ */
+
+/**
+ * Ads an EventListener to the AdsManager. For a list of available events,
+ * see
+ * https://developers.google.com/interactive-media-ads/docs/sdks/html5/client-side/reference/js/google.ima.AdEvent#.Type
+ * @param {google.ima.AdEvent.Type} event The AdEvent.Type for which to
+ *     listen.
+ * @param {callback} callback The method to call when the event is fired.
+ */
+Controller.prototype.addEventListener = function (event, callback) {
+  this.sdkImpl.addEventListener(event, callback);
+};
+
+/**
+ * Returns the instance of the AdsManager.
+ * @return {google.ima.AdsManager} The AdsManager being used by the plugin.
+ */
+Controller.prototype.getAdsManager = function () {
+  return this.sdkImpl.getAdsManager();
+};
+
+/**
+ * Returns the instance of the player id.
+ * @return {string} The player id.
+ */
+Controller.prototype.getPlayerId = function () {
+  return this.playerWrapper.getPlayerId();
+};
+
+/**
+ * Changes the ad tag. You will need to call requestAds after this method
+ * for the new ads to be requested.
+ * @param {?string} adTag The ad tag to be requested the next time
+ *     requestAds is called.
+ */
+Controller.prototype.changeAdTag = function (adTag) {
+  this.reset();
+  this.settings.adTagUrl = adTag;
+};
+
+/**
+ * Pauses the ad.
+ */
+Controller.prototype.pauseAd = function () {
+  this.adUi.onAdsPaused();
+  this.sdkImpl.pauseAds();
+};
+
+/**
+ * Resumes the ad.
+ */
+Controller.prototype.resumeAd = function () {
+  this.adUi.onAdsPlaying();
+  this.sdkImpl.resumeAds();
+};
+
+/**
+ * Toggles video/ad playback.
+ */
+Controller.prototype.togglePlayback = function () {
+  this.playerWrapper.togglePlayback();
+};
+
+/**
+ * @return {boolean} true if we expect that ads will autoplay. false otherwise.
+ */
+Controller.prototype.adsWillAutoplay = function () {
+  if (this.settings.adsWillAutoplay !== undefined) {
+    return this.settings.adsWillAutoplay;
+  } else if (this.settings.adWillAutoplay !== undefined) {
+    return this.settings.adWillAutoplay;
+  } else {
+    return !!this.playerWrapper.getPlayerOptions().autoplay;
+  }
+};
+
+/**
+ * @return {boolean} true if we expect that ads will autoplay. false otherwise.
+ */
+Controller.prototype.adsWillPlayMuted = function () {
+  if (this.settings.adsWillPlayMuted !== undefined) {
+    return this.settings.adsWillPlayMuted;
+  } else if (this.settings.adWillPlayMuted !== undefined) {
+    return this.settings.adWillPlayMuted;
+  } else if (this.playerWrapper.getPlayerOptions().muted !== undefined) {
+    return this.playerWrapper.getPlayerOptions().muted;
+  } else {
+    return this.playerWrapper.getVolume() == 0;
+  }
+};
+
+/**
+ * Triggers an event on the VJS player
+ * @param  {string} name The event name.
+ * @param  {Object} data The event data.
+ */
+Controller.prototype.triggerPlayerEvent = function (name, data) {
+  this.playerWrapper.triggerPlayerEvent(name, data);
+};
+
+/**
+ * Copyright 2021 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * IMA SDK integration plugin for Video.js. For more information see
+ * https://www.github.com/googleads/videojs-ima
+ */
+
+/**
+ * Wraps the video.js stream player for the plugin.
+ *
+ * @param {!Object} player Video.js player instance.
+ * @param {!Object} adsPluginSettings Settings for the contrib-ads plugin.
+ * @param {!DaiController} daiController Reference to the parent controller.
+ */
+var PlayerWrapper$2 = function PlayerWrapper(player, adsPluginSettings, daiController) {
+  /**
+   * Instance of the video.js player.
+   */
+  this.vjsPlayer = player;
+
+  /**
+   * Plugin DAI controller.
+   */
+  this.daiController = daiController;
+
+  /**
+   * Video.js control bar.
+   */
+  this.vjsControls = this.vjsPlayer.getChild('controlBar');
+
+  /**
+   * Vanilla HTML5 video player underneath the video.js player.
+   */
+  this.h5Player = null;
+
+  this.vjsPlayer.on('dispose', this.playerDisposedListener.bind(this));
+  this.vjsPlayer.on('pause', this.onPause.bind(this));
+  this.vjsPlayer.on('play', this.onPlay.bind(this));
+  this.vjsPlayer.on('seeked', this.onSeekEnd.bind(this));
+  this.vjsPlayer.ready(this.onPlayerReady.bind(this));
+  this.vjsPlayer.ads(adsPluginSettings);
+};
+
+/**
+ * Called in response to the video.js player's 'disposed' event.
+ */
+PlayerWrapper$2.prototype.playerDisposedListener = function () {
+  this.contentEndedListeners = [];
+  this.daiController.onPlayerDisposed();
+};
+
+/**
+ * Called on the player 'pause' event. Handles displaying controls during
+ * paused ad breaks.
+ */
+PlayerWrapper$2.prototype.onPause = function () {
+  // This code will run if the stream is paused during an ad break. Since
+  // controls are usually hidden during ads, they will now show to allow
+  // users to resume ad playback.
+  if (this.daiController.isInAdBreak()) {
+    this.vjsControls.show();
+  }
+};
+
+/**
+ * Called on the player 'play' event. Handles hiding controls during
+ * ad breaks while playing.
+ */
+PlayerWrapper$2.prototype.onPlay = function () {
+  if (this.daiController.isInAdBreak()) {
+    this.vjsControls.hide();
+  }
+};
+
+/**
+ * Called on the player's 'seeked' event. Sets up handling for ad break
+ * snapback for VOD streams.
+ */
+PlayerWrapper$2.prototype.onSeekEnd = function () {
+  this.daiController.onSeekEnd(this.vjsPlayer.currentTime());
+};
+
+/**
+ * Called on the player's 'ready' event to begin initiating IMA.
+ */
+PlayerWrapper$2.prototype.onPlayerReady = function () {
+  this.h5Player = document.getElementById(this.getPlayerId()).getElementsByClassName('vjs-tech')[0];
+  this.daiController.onPlayerReady();
+};
+
+/**
+ * @return {!Object} The stream player.
+ */
+PlayerWrapper$2.prototype.getStreamPlayer = function () {
+  return this.h5Player;
+};
+
+/**
+ * @return {!Object} The video.js player.
+ */
+PlayerWrapper$2.prototype.getVjsPlayer = function () {
+  return this.vjsPlayer;
+};
+
+/**
+ * @return {!Object} The vjs player's options object.
+ */
+PlayerWrapper$2.prototype.getPlayerOptions = function () {
+  return this.vjsPlayer.options_;
+};
+
+/**
+ * Returns the instance of the player id.
+ * @return {string} The player id.
+ */
+PlayerWrapper$2.prototype.getPlayerId = function () {
+  return this.vjsPlayer.id();
+};
+
+/**
+ * Handles ad errors.
+ *
+ * @param {!Object} adErrorEvent The ad error event thrown by the IMA SDK.
+ */
+PlayerWrapper$2.prototype.onAdError = function (adErrorEvent) {
+  this.vjsControls.show();
+  var errorMessage = adErrorEvent.getError !== undefined ? adErrorEvent.getError() : adErrorEvent.stack;
+  this.vjsPlayer.trigger({ type: 'adserror', data: {
+      AdError: errorMessage,
+      AdErrorEvent: adErrorEvent
+    } });
+};
+
+/**
+ * Handles ad break starting.
+ */
+PlayerWrapper$2.prototype.onAdBreakStart = function () {
+  this.vjsControls.hide();
+};
+
+/**
+ * Handles ad break ending.
+ */
+PlayerWrapper$2.prototype.onAdBreakEnd = function () {
+  this.vjsControls.show();
+};
+
+/**
+ * Reset the player.
+ */
+PlayerWrapper$2.prototype.reset = function () {
+  this.vjsControls.show();
+};
+
+/**
+ * Copyright 2021 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * IMA SDK integration plugin for Video.js. For more information see
+ * https://www.github.com/googleads/videojs-ima
+ */
+
+/**
+ * Implementation of the IMA DAI SDK for the plugin.
+ *
+ * @param {DaiController!} daiController Reference to the parent DAI
+ * controller.
+ *
+ * @constructor
+ * @struct
+ * @final
+ */
+var SdkImpl$2 = function SdkImpl(daiController) {
+  /**
+   * Plugin DAI controller.
+   */
+  this.daiController = daiController;
+
+  /**
+   * The html5 stream player.
+   */
+  this.streamPlayer = null;
+
+  /**
+   * The videoJS stream player.
+   */
+  this.vjsPlayer = null;
+
+  /**
+   * IMA SDK StreamManager
+   */
+  this.streamManager = null;
+
+  /**
+   * IMA stream UI settings.
+   */
+  /* eslint no-undef: 'error' */
+  /* global google */
+  this.uiSettings = new google.ima.dai.api.UiSettings();
+
+  /**
+   * If the stream is currently in an ad break.
+   */
+  this.isAdBreak = false;
+
+  /**
+   * If the stream is currently seeking from a snapback.
+   */
+  this.isSnapback = false;
+
+  /**
+   * Originally seeked to time, to return stream to after ads.
+   */
+  this.snapForwardTime = 0;
+
+  /**
+   * Timed metadata for the stream.
+   */
+  this.timedMetadata;
+
+  /**
+   * Timed metadata record.
+   */
+  this.metadataLoaded = {};
+
+  this.SOURCE_TYPES = {
+    hls: 'application/x-mpegURL',
+    dash: 'application/dash+xml'
+  };
+};
+
+/**
+ * Creates and initializes the IMA DAI SDK objects.
+ */
+SdkImpl$2.prototype.initImaDai = function () {
+  this.streamPlayer = this.daiController.getStreamPlayer();
+  this.vjsPlayer = this.daiController.getVjsPlayer();
+
+  this.createAdUiDiv();
+  if (this.daiController.getSettings().locale) {
+    this.uiSettings.setLocale(this.daiController.getSettings().locale);
+  }
+
+  this.streamManager = new google.ima.dai.api.StreamManager(this.streamPlayer, this.adUiDiv, this.uiSettings);
+
+  this.streamPlayer.addEventListener('pause', this.onStreamPause);
+  this.streamPlayer.addEventListener('play', this.onStreamPlay);
+
+  this.streamManager.addEventListener([google.ima.dai.api.StreamEvent.Type.LOADED, google.ima.dai.api.StreamEvent.Type.ERROR, google.ima.dai.api.StreamEvent.Type.AD_BREAK_STARTED, google.ima.dai.api.StreamEvent.Type.AD_BREAK_ENDED], this.onStreamEvent.bind(this), false);
+
+  this.vjsPlayer.textTracks().onaddtrack = this.onAddTrack.bind(this);
+
+  this.vjsPlayer.trigger({
+    type: 'stream-manager',
+    StreamManager: this.streamManager
+  });
+
+  this.requestStream();
+};
+
+/**
+ * Called when the video player has metadata to process.
+ * @param {Event!} event The event that triggered this call.
+ */
+SdkImpl$2.prototype.onAddTrack = function (event) {
+  var _this = this;
+
+  var track = event.track;
+  if (track.kind === 'metadata') {
+    track.mode = 'hidden';
+    track.oncuechange = function (e) {
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = track.activeCues_[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var cue = _step.value;
+
+          var metadata = {};
+          metadata[cue.value.key] = cue.value.data;
+          _this.streamManager.onTimedMetadata(metadata);
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+    };
+  }
+};
+
+/**
+ * Creates the ad UI container.
+ */
+SdkImpl$2.prototype.createAdUiDiv = function () {
+  var uiDiv = document.createElement('div');
+  uiDiv.id = 'ad-ui';
+  // 3em is the height of the control bar.
+  uiDiv.style.height = 'calc(100% - 3em)';
+  this.streamPlayer.parentNode.appendChild(uiDiv);
+  this.adUiDiv = uiDiv;
+};
+
+/**
+ * Called on pause to update the ad UI.
+ */
+SdkImpl$2.prototype.onStreamPause = function () {
+  if (this.isAdBreak) {
+    this.adUiDiv.style.display = 'none';
+  }
+};
+
+/**
+ * Called on play to update the ad UI.
+ */
+SdkImpl$2.prototype.onStreamPlay = function () {
+  if (this.isAdBreak) {
+    this.adUiDiv.style.display = 'block';
+  }
+};
+
+/**
+ * Called on play to update the ad UI.
+ * @param {number} currentTime the current time of the stream.
+ */
+SdkImpl$2.prototype.onSeekEnd = function (currentTime) {
+  var streamType = this.daiController.getSettings().streamType;
+  if (streamType === 'live') {
+    return;
+  }
+  if (this.isSnapback) {
+    this.isSnapback = false;
+    return;
+  }
+  var previousCuePoint = this.streamManager.previousCuePointForStreamTime(currentTime);
+  if (previousCuePoint && !previousCuePoint.played) {
+    this.isSnapback = true;
+    this.snapForwardTime = currentTime;
+    this.vjsPlayer.currentTime(previousCuePoint.start);
+  }
+};
+
+/**
+ * Handles IMA events.
+ * @param {google.ima.StreamEvent!} event the IMA event
+ */
+SdkImpl$2.prototype.onStreamEvent = function (event) {
+  switch (event.type) {
+    case google.ima.dai.api.StreamEvent.Type.LOADED:
+      this.loadUrl(event.getStreamData().url);
+      break;
+    case google.ima.dai.api.StreamEvent.Type.ERROR:
+      window.console.warn('Error loading stream, attempting to play backup ' + 'stream. ' + event.getStreamData().errorMessage);
+      this.daiController.onErrorLoadingAds(event);
+      if (this.daiController.getSettings().fallbackStreamUrl) {
+        this.loadurl(this.daiController.getSettings().fallbackStreamUrl);
+      }
+      break;
+    case google.ima.dai.api.StreamEvent.Type.AD_BREAK_STARTED:
+      this.isAdBreak = true;
+      this.adUiDiv.style.display = 'block';
+      this.daiController.onAdBreakStart();
+      break;
+    case google.ima.dai.api.StreamEvent.Type.AD_BREAK_ENDED:
+      this.isAdBreak = false;
+      this.adUiDiv.style.display = 'none';
+      this.daiController.onAdBreakEnd();
+      if (this.snapForwardTime && this.snapForwardTime > this.vjsPlayer.currentTime()) {
+        this.vjsPlayer.currentTime(this.snapForwardTime);
+        this.snapForwardTime = 0;
+      }
+      break;
+    default:
+      break;
+  }
+};
+
+/**
+ * Loads the stream URL .
+ * @param {string} streamUrl the URL for the stream being loaded.
+ */
+SdkImpl$2.prototype.loadUrl = function (streamUrl) {
+  this.vjsPlayer.ready(function () {
+    var streamFormat = this.daiController.getSettings().streamFormat;
+    this.vjsPlayer.src({
+      src: streamUrl,
+      type: this.SOURCE_TYPES[streamFormat]
+    });
+
+    var bookmarkTime = this.daiController.getSettings().bookmarkTime;
+    if (bookmarkTime) {
+      var startTime = this.streamManager.streamTimeForContentTime(bookmarkTime);
+      // Seeking on load triggers the onSeekEnd event, so treat this seek as
+      // if it's snapback. Without this, resuming at a bookmark kicks you
+      // back to the ad before the bookmark.
+      this.isSnapback = true;
+      this.vjsPlayer.currentTime(startTime);
+    }
+  }.bind(this));
+};
+
+/**
+ * Creates the AdsRequest and request ads through the AdsLoader.
+ */
+SdkImpl$2.prototype.requestStream = function () {
+  var streamRequest = void 0;
+  var streamType = this.daiController.getSettings().streamType;
+  if (streamType === 'vod') {
+    streamRequest = new google.ima.dai.api.VODStreamRequest();
+    streamRequest.contentSourceId = this.daiController.getSettings().cmsId;
+    streamRequest.videoId = this.daiController.getSettings().videoId;
+  } else if (streamType === 'live') {
+    streamRequest = new google.ima.dai.api.LiveStreamRequest();
+    streamRequest.assetKey = this.daiController.getSettings().assetKey;
+  } else {
+    window.console.warn('No valid stream type selected');
+  }
+  streamRequest.format = this.daiController.getSettings().streamFormat;
+
+  if (this.daiController.getSettings().apiKey) {
+    streamRequest.apiKey = this.daiController.getSettings().apiKey;
+  }
+  if (this.daiController.getSettings().authToken) {
+    streamRequest.authToken = this.daiController.getSettings().authToken;
+  }
+  if (this.daiController.getSettings().adTagParameters) {
+    streamRequest.adTagParameters = this.daiController.getSettings().adTagParameters;
+  }
+  if (this.daiController.getSettings().streamActivityMonitorId) {
+    streamRequest.streamActivityMonitorId = this.daiController.getSettings().streamActivityMonitorId;
+  }
+
+  if (this.daiController.getSettings().omidMode) {
+    streamRequest.omidAccessModeRules = {};
+    var omidValues = this.daiController.getSettings().omidMode;
+
+    if (omidValues.FULL) {
+      streamRequest.omidAccessModeRules[google.ima.OmidAccessMode.FULL] = omidValues.FULL;
+    }
+    if (omidValues.DOMAIN) {
+      streamRequest.omidAccessModeRules[google.ima.OmidAccessMode.DOMAIN] = omidValues.DOMAIN;
+    }
+    if (omidValues.LIMITED) {
+      streamRequest.omidAccessModeRules[google.ima.OmidAccessMode.LIMITED] = omidValues.LIMITED;
+    }
+  }
+
+  this.streamManager.requestStream(streamRequest);
+  this.vjsPlayer.trigger({
+    type: 'stream-request',
+    StreamRequest: streamRequest
+  });
+};
+
+/**
+ * Initiates IMA when the player is ready.
+ */
+SdkImpl$2.prototype.onPlayerReady = function () {
+  this.initImaDai();
+};
+
+/**
+ * Reset the StreamManager when the player is disposed.
+ */
+SdkImpl$2.prototype.onPlayerDisposed = function () {
+  if (this.streamManager) {
+    this.streamManager.reset();
+  }
+};
+
+/**
+ * Returns the instance of the StreamManager.
+ * @return {google.ima.StreamManager!} The StreamManager being used by the
+ * plugin.
+ */
+SdkImpl$2.prototype.getStreamManager = function () {
+  return this.StreamManager;
+};
+
+/**
+ * Reset the SDK implementation.
+ */
+SdkImpl$2.prototype.reset = function () {
+  if (this.StreamManager) {
+    this.StreamManager.reset();
+  }
+};
+
+/**
+ * Copyright 2021 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * IMA SDK integration plugin for Video.js. For more information see
+ * https://www.github.com/googleads/videojs-ima
+ */
+/**
+ * The coordinator for the DAI portion of the plugin. Facilitates
+ * communication between all other plugin classes.
+ *
+ * @param {Object!} player Instance of the video.js player.
+ * @param {Object!} options Options provided by the implementation.
+ * @constructor
+ * @struct
+ * @final
+ */
+var DaiController = function DaiController(player, options) {
+  /**
+  * If the stream is currently in an ad break.
+  * @type {boolean}
+  */
+  this.inAdBreak = false;
+
+  /**
+  * Stores user-provided settings.
+  * @type {Object!}
+  */
+  this.settings = {};
+
+  /**
+  * Whether or not we are running on a mobile platform.
+  */
+  this.isMobile = navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i) || navigator.userAgent.match(/Android/i);
+
+  /**
+  * Whether or not we are running on an iOS platform.
+  */
+  this.isIos = navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i);
+
+  this.initWithSettings(options);
+
+  /**
+  * Stores contrib-ads default settings.
+  */
+  var contribAdsDefaults = {
+    debug: this.settings.debug,
+    timeout: this.settings.timeout,
+    prerollTimeout: this.settings.prerollTimeout
+  };
+  var adsPluginSettings = Object.assign({}, contribAdsDefaults, options.contribAdsSettings || {});
+
+  this.playerWrapper = new PlayerWrapper$2(player, adsPluginSettings, this);
+  this.sdkImpl = new SdkImpl$2(this);
+};
+
+DaiController.IMA_DEFAULTS = {
+  adLabel: 'Advertisement',
+  adLabelNofN: 'of',
+  debug: false,
+  disableAdControls: false,
+  showControlsForJSAds: true
+};
+
+/**
+ * Extends the settings to include user-provided settings.
+ *
+ * @param {Object!} options Options to be used in initialization.
+ */
+DaiController.prototype.initWithSettings = function (options) {
+  this.settings = Object.assign({}, DaiController.IMA_DEFAULTS, options || {});
+
+  this.warnAboutDeprecatedSettings();
+
+  // Default showing countdown timer to true.
+  this.showCountdown = true;
+  if (this.settings.showCountdown === false) {
+    this.showCountdown = false;
+  }
+};
+
+/**
+ * Logs console warnings when deprecated settings are used.
+ */
+DaiController.prototype.warnAboutDeprecatedSettings = function () {
+  var _this = this;
+
+  var deprecatedSettings = [
+    // Currently no DAI plugin settings are deprecated.
+  ];
+  deprecatedSettings.forEach(function (setting) {
+    if (_this.settings[setting] !== undefined) {
+      console.warn('WARNING: videojs.imaDai setting ' + setting + ' is deprecated');
+    }
+  });
+};
+
+/**
+ * Return the settings object.
+ *
+ * @return {Object!} The settings object.
+ */
+DaiController.prototype.getSettings = function () {
+  return this.settings;
+};
+
+/**
+ * Return whether or not we're in a mobile environment.
+ *
+ * @return {boolean} True if running on mobile, false otherwise.
+ */
+DaiController.prototype.getIsMobile = function () {
+  return this.isMobile;
+};
+
+/**
+ * Return whether or not we're in an iOS environment.
+ *
+ * @return {boolean} True if running on iOS, false otherwise.
+ */
+DaiController.prototype.getIsIos = function () {
+  return this.isIos;
+};
+
+/**
+ * @return {Object!} The html5 player.
+ */
+DaiController.prototype.getStreamPlayer = function () {
+  return this.playerWrapper.getStreamPlayer();
+};
+
+/**
+ * @return {Object!} The video.js player.
+ */
+DaiController.prototype.getVjsPlayer = function () {
+  return this.playerWrapper.getVjsPlayer();
+};
+
+/**
+ * Requests the stream.
+ */
+DaiController.prototype.requestStream = function () {
+  this.sdkImpl.requestStream();
+};
+
+/**
+ * Add or modify a setting.
+ *
+ * @param {string} key Key to modify
+ * @param {Object!} value Value to set at key.
+*/
+DaiController.prototype.setSetting = function (key, value) {
+  this.settings[key] = value;
+};
+
+/**
+ * Called when there is an error loading ads.
+ *
+ * @param {Object!} adErrorEvent The ad error event thrown by the IMA SDK.
+ */
+DaiController.prototype.onErrorLoadingAds = function (adErrorEvent) {
+  this.playerWrapper.onAdError(adErrorEvent);
+};
+
+/**
+ * Relays ad errors to the player wrapper.
+ *
+ * @param {Object!} adErrorEvent The ad error event thrown by the IMA SDK.
+ */
+DaiController.prototype.onAdError = function (adErrorEvent) {
+  this.playerWrapper.onAdError(adErrorEvent);
+};
+
+/**
+ * Signals player that an ad break has started.
+ */
+DaiController.prototype.onAdBreakStart = function () {
+  this.inAdBreak = true;
+  this.playerWrapper.onAdBreakStart();
+};
+
+/**
+ * Signals player that an ad break has ended.
+ */
+DaiController.prototype.onAdBreakEnd = function () {
+  this.inAdBreak = false;
+  this.playerWrapper.onAdBreakEnd();
+};
+
+/**
+ * Called when the player is disposed.
+ */
+DaiController.prototype.onPlayerDisposed = function () {
+  this.contentAndAdsEndedListeners = [];
+  this.sdkImpl.onPlayerDisposed();
+};
+
+/**
+ * Returns if the stream is currently in an ad break.
+ * @return {boolean} If the stream is currently in an ad break.
+ */
+DaiController.prototype.isInAdBreak = function () {
+  return this.inAdBreak;
+};
+
+/**
+ * Called on seek end to check for ad snapback.
+ * @param {number} currentTime the current time of the stream.
+ */
+DaiController.prototype.onSeekEnd = function (currentTime) {
+  this.sdkImpl.onSeekEnd(currentTime);
+};
+
+/**
+ * Called when the player is ready.
+ */
+DaiController.prototype.onPlayerReady = function () {
+  this.sdkImpl.onPlayerReady();
+};
+
+/**
+ * Resets the state of the plugin.
+ */
+DaiController.prototype.reset = function () {
+  this.sdkImpl.reset();
+  this.playerWrapper.reset();
+};
+
+/**
+ * Adds an EventListener to the StreamManager. For a list of available events,
+ * see
+ * https://developers.google.com/interactive-media-ads/docs/sdks/html5/dai/reference/js/StreamEvent
+ * @param {google.ima.StreamEvent.Type!} event The AdEvent.Type for which to
+ *     listen.
+ * @param {callback!} callback The method to call when the event is fired.
+ */
+DaiController.prototype.addEventListener = function (event, callback) {
+  this.sdkImpl.addEventListener(event, callback);
+};
+
+/**
+ * Returns the instance of the StreamManager.
+ * @return {google.ima.StreamManager!} The StreamManager being used by the
+ * plugin.
+ */
+DaiController.prototype.getStreamManager = function () {
+  return this.sdkImpl.getStreamManager();
+};
+
+/**
+ * Returns the instance of the player id.
+ * @return {string} The player id.
+ */
+DaiController.prototype.getPlayerId = function () {
+  return this.playerWrapper.getPlayerId();
+};
+
+/**
+ * @return {boolean} true if we expect that the stream will autoplay. false
+ * otherwise.
+ */
+DaiController.prototype.streamWillAutoplay = function () {
+  if (this.settings.streamWillAutoplay !== undefined) {
+    return this.settings.streamWillAutoplay;
+  } else {
+    return !!this.playerWrapper.getPlayerOptions().autoplay;
+  }
+};
+
+/**
+ * Triggers an event on the VJS player
+ * @param  {string} name The event name.
+ * @param  {Object!} data The event data.
+ */
+DaiController.prototype.triggerPlayerEvent = function (name, data) {
+  this.playerWrapper.triggerPlayerEvent(name, data);
+};
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * IMA SDK integration plugin for Video.js. For more information see
+ * https://www.github.com/googleads/videojs-ima
+ */
+
+/**
+ * Exposes the ImaPlugin to a publisher implementation.
+ *
+ * @param {Object} player Instance of the video.js player to which this plugin
+ *     will be added.
+ * @param {Object} options Options provided by the implementation.
+ * @constructor
+ * @struct
+ * @final
+ */
+var ImaPlugin = function ImaPlugin(player, options) {
+  this.controller = new Controller(player, options);
+
+  /**
+   * Listener JSDoc for ESLint. This listener can be passed to
+   * addContent(AndAds)EndedListener.
+   * @callback listener
+   */
+
+  /**
+   * Adds a listener that will be called when content and all ads have
+   * finished playing.
+   * @param {listener} listener The listener to be called when content and ads
+   *     complete.
+   */
+  this.addContentAndAdsEndedListener = function (listener) {
+    this.controller.addContentAndAdsEndedListener(listener);
+  }.bind(this);
+
+  /**
+   * Adds a listener for the 'contentended' event of the video player. This
+   * should be used instead of setting an 'contentended' listener directly to
+   * ensure that the ima can do proper cleanup of the SDK before other event
+   * listeners are called.
+   * @param {listener} listener The listener to be called when content
+   *     completes.
+   */
+  this.addContentEndedListener = function (listener) {
+    this.controller.addContentEndedListener(listener);
+  }.bind(this);
+
+  /**
+   * Callback JSDoc for ESLint. This callback can be passed to addEventListener.
+   * @callback callback
+   */
+
+  /**
+   * Ads an EventListener to the AdsManager. For a list of available events,
+   * see
+   * https://developers.google.com/interactive-media-ads/docs/sdks/html5/client-side/reference/js/google.ima.AdEvent#.Type
+   * @param {google.ima.AdEvent.Type} event The AdEvent.Type for which to
+   *     listen.
+   * @param {callback} callback The method to call when the event is fired.
+   */
+  this.addEventListener = function (event, callback) {
+    this.controller.addEventListener(event, callback);
+  }.bind(this);
+
+  /**
+   * Changes the ad tag. You will need to call requestAds after this method
+   * for the new ads to be requested.
+   * @param {?string} adTag The ad tag to be requested the next time requestAds
+   *     is called.
+   */
+  this.changeAdTag = function (adTag) {
+    this.controller.changeAdTag(adTag);
+  }.bind(this);
+
+  /**
+   * Returns the instance of the AdsManager.
+   * @return {google.ima.AdsManager} The AdsManager being used by the plugin.
+   */
+  this.getAdsManager = function () {
+    return this.controller.getAdsManager();
+  }.bind(this);
+
+  /**
+   * Initializes the AdDisplayContainer. On mobile, this must be done as a
+   * result of user action.
+   */
+  this.initializeAdDisplayContainer = function () {
+    this.controller.initializeAdDisplayContainer();
+  }.bind(this);
+
+  /**
+   * Pauses the ad.
+   */
+  this.pauseAd = function () {
+    this.controller.pauseAd();
+  }.bind(this);
+
+  /**
+   * Called by publishers in manual ad break playback mode to start an ad
+   * break.
+   */
+  this.playAdBreak = function () {
+    this.controller.playAdBreak();
+  }.bind(this);
+
+  /**
+   * Creates the AdsRequest and request ads through the AdsLoader.
+   */
+  this.requestAds = function () {
+    this.controller.requestAds();
+  }.bind(this);
+
+  /**
+   * Resumes the ad.
+   */
+  this.resumeAd = function () {
+    this.controller.resumeAd();
+  }.bind(this);
+
+  /**
+   * Sets the listener to be called to trigger manual ad break playback.
+   * @param {listener} listener The listener to be called to trigger manual ad
+   *     break playback.
+   */
+  this.setAdBreakReadyListener = function (listener) {
+    this.controller.setAdBreakReadyListener(listener);
+  }.bind(this);
+
+  /**
+   * Sets the content of the video player. You should use this method instead
+   * of setting the content src directly to ensure the proper ad tag is
+   * requested when the video content is loaded.
+   * @param {?string} contentSrc The URI for the content to be played. Leave
+   *     blank to use the existing content.
+   * @param {?string} adTag The ad tag to be requested when the content loads.
+   *     Leave blank to use the existing ad tag.
+   */
+  this.setContentWithAdTag = function (contentSrc, adTag) {
+    this.controller.setContentWithAdTag(contentSrc, adTag);
+  }.bind(this);
+
+  /**
+   * Sets the content of the video player. You should use this method instead
+   * of setting the content src directly to ensure the proper ads response is
+   * used when the video content is loaded.
+   * @param {?string} contentSrc The URI for the content to be played. Leave
+   *     blank to use the existing content.
+   * @param {?string} adsResponse The ads response to be requested when the
+   *     content loads. Leave blank to use the existing ads response.
+   */
+  this.setContentWithAdsResponse = function (contentSrc, adsResponse) {
+    this.controller.setContentWithAdsResponse(contentSrc, adsResponse);
+  }.bind(this);
+
+  /**
+   * Sets the content of the video player. You should use this method instead
+   * of setting the content src directly to ensure the proper ads request is
+   * used when the video content is loaded.
+   * @param {?string} contentSrc The URI for the content to be played. Leave
+   *     blank to use the existing content.
+   * @param {?Object} adsRequest The ads request to be requested when the
+   *     content loads. Leave blank to use the existing ads request.
+   */
+  this.setContentWithAdsRequest = function (contentSrc, adsRequest) {
+    this.controller.setContentWithAdsRequest(contentSrc, adsRequest);
+  }.bind(this);
+
+  /**
+   * Changes the flag to show or hide the ad countdown timer.
+   *
+   * @param {boolean} showCountdownIn Show or hide the countdown timer.
+   */
+  this.setShowCountdown = function (showCountdownIn) {
+    this.controller.setShowCountdown(showCountdownIn);
+  }.bind(this);
+};
+
+/**
+ * Exposes the ImaDaiPlugin to a publisher implementation.
+ *
+ * @param {Object} player Instance of the video.js player to which this plugin
+ *     will be added.
+ * @param {Object} options Options provided by the implementation.
+ * @constructor
+ * @struct
+ * @final
+ */
+var ImaDaiPlugin = function ImaDaiPlugin(player, options) {
+  this.controller = new DaiController(player, options);
+
+  /**
+   * Adds a listener that will be called when content and all ads in the
+   * stream have finished playing. VOD stream only.
+   * @param {listener} listener The listener to be called when content and ads
+   *     complete.
+   */
+  this.streamEndedListener = function (listener) {
+    this.controller.addStreamEndedListener(listener);
+  }.bind(this);
+
+  /**
+   * Adds an EventListener to the StreamManager.
+   * @param {google.ima.StreamEvent.Type} event The StreamEvent.Type for which
+   * to listen.
+   * @param {callback} callback The method to call when the event is fired.
+   */
+  this.addEventListener = function (event, callback) {
+    this.controller.addEventListener(event, callback);
+  }.bind(this);
+
+  /**
+   * Returns the instance of the StreamManager.
+   * @return {google.ima.StreamManager} The StreamManager being used by the
+   * plugin.
+   */
+  this.getStreamManager = function () {
+    return this.controller.getStreamManager();
+  }.bind(this);
+};
+
+/**
+ * Initializes the plugin for client-side ads.
+ * @param {Object} options Plugin option set on initiation.
+ */
+var init = function init(options) {
+  /* eslint no-invalid-this: 'off' */
+  this.ima = new ImaPlugin(this, options);
+};
+
+/**
+ * LiveStream class used for DAI live streams.
+ */
+
+var LiveStream =
+/**
+ * LiveStream class constructor used for DAI live streams.
+ * @param {string} streamFormat stream format, plugin currently supports only
+ * 'hls' streams.
+ * @param {string} assetKey live stream's asset key.
+ */
+function LiveStream(streamFormat, assetKey) {
+  _classCallCheck(this, LiveStream);
+
+  streamFormat = streamFormat.toLowerCase();
+  if (streamFormat !== 'hls' && streamFormat !== 'dash') {
+    window.console.error('VodStream error: incorrect streamFormat.');
+    return;
+  } else if (streamFormat === 'dash') {
+    window.console.error('streamFormat error: DASH streams are not' + 'currently supported by this plugin.');
+    return;
+  } else if (typeof assetKey !== 'string') {
+    window.console.error('assetKey error: value must be string.');
+    return;
+  }
+  this.streamFormat = streamFormat;
+  this.assetKey = assetKey;
+};
+
+/**
+ * VodStream class used for DAI VOD streams.
+ */
+
+
+var VodStream =
+/**
+ * VodStream class constructor used for DAI VOD streams.
+ * @param {string} streamFormat stream format, plugin currently supports only
+ * 'hls' streams.
+ * @param {string} cmsId VOD stream's CMS ID.
+ * @param {string} videoId VOD stream's video ID.
+ */
+function VodStream(streamFormat, cmsId, videoId) {
+  _classCallCheck(this, VodStream);
+
+  streamFormat = streamFormat.toLowerCase();
+  if (streamFormat !== 'hls' && streamFormat !== 'dash') {
+    window.console.error('VodStream error: incorrect streamFormat.');
+    return;
+  } else if (streamFormat === 'dash') {
+    window.console.error('streamFormat error: DASH streams are not' + 'currently supported by this plugin.');
+    return;
+  } else if (typeof cmsId !== 'string') {
+    window.console.error('cmsId error: value must be string.');
+    return;
+  } else if (typeof videoId !== 'string') {
+    window.console.error('videoId error: value must be string.');
+    return;
+  }
+
+  this.streamFormat = streamFormat;
+  this.cmsId = cmsId;
+  this.videoId = videoId;
+};
+
+/**
+ * Initializes the plugin for DAI ads.
+ * @param {Object} stream Accepts either an instance of the LiveStream or
+ * VodStream classes.
+ * @param {Object} options Plugin option set on initiation.
+ */
+
+
+var initDai = function initDai(stream, options) {
+  if (stream instanceof LiveStream) {
+    options.streamType = 'live';
+    options.assetKey = stream.assetKey;
+  } else if (stream instanceof VodStream) {
+    options.streamType = 'vod';
+    options.cmsId = stream.cmsId;
+    options.videoId = stream.videoId;
+  } else {
+    window.console.error('initDai() first parameter must be an instance of LiveStream or ' + 'VodStream.');
+    return;
+  }
+
+  options.streamFormat = stream.streamFormat;
+  /* eslint no-invalid-this: 'off' */
+  this.imaDai = new ImaDaiPlugin(this, options);
+};
+
+var registerPlugin = videojs.registerPlugin || videojs.plugin;
+registerPlugin('ima', init);
+registerPlugin('imaDai', initDai);
+
+exports['default'] = ImaPlugin;
+exports.VodStream = VodStream;
+exports.LiveStream = LiveStream;
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+})));
+
 
 
 
