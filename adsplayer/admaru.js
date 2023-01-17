@@ -158,7 +158,7 @@ var PlayerWrapper = function PlayerWrapper(player, adsPluginSettings, controller
    */
 
 
-  this.contentSourceType = '';   
+  this.contentSourceType = '';
 
   /**
    * Stores data for the content playhead tracker.
@@ -246,7 +246,7 @@ PlayerWrapper.prototype.checkForSeeking = function () {
     this.contentPlayheadTracker.seeking = false;
   }
   this.contentPlayheadTracker.previousTime = this.vjsPlayer.currentTime();
-};      
+};
 
 /**
  * Detects when the player is resized (for fluid support) and resizes the
@@ -280,10 +280,9 @@ PlayerWrapper.prototype.localContentEndedListener = function () {
     if (typeof this.contentEndedListeners[index] === 'function') {
       this.contentEndedListeners[index]();
     }
-  }
+  };
 
 
-         
   clearInterval(this.updateTimeIntervalHandle);
   clearInterval(this.seekCheckIntervalHandle);
   clearInterval(this.resizeCheckIntervalHandle);
@@ -360,7 +359,7 @@ PlayerWrapper.prototype.onAdTimeout = function () {
  * Called when the player fires its 'ready' event.
  */
 
-                 
+
 PlayerWrapper.prototype.onPlayerReady = function () {
   this.h5Player = document.getElementById(this.getPlayerId()).getElementsByClassName('vjs-tech')[0];
 
@@ -386,8 +385,8 @@ PlayerWrapper.prototype.onPlayerReady = function () {
  * Listens for the admaru player to change its fullscreen status. This
  * keeps the fullscreen-ness of the AdContainer in sync with the player.
  */
-  
-               
+
+
 
 PlayerWrapper.prototype.onFullscreenChange = function () {
   if (this.vjsPlayer.isFullscreen()) {
@@ -428,7 +427,7 @@ PlayerWrapper.prototype.injectAdContainerDiv = function (adContainerDiv) {
 PlayerWrapper.prototype.getContentPlayer = function () {              
   return this.h5Player;
 };
-              
+
 
 
 /**
@@ -446,7 +445,7 @@ PlayerWrapper.prototype.getVolume = function () {
  *
  * @param {number} volume The new volume.
  */
-PlayerWrapper.prototype.setVolume = function (volume) {                           
+PlayerWrapper.prototype.setVolume = function (volume) {
   this.vjsPlayer.volume(volume);
   if (volume == 0) {
     this.vjsPlayer.muted(true);
@@ -454,13 +453,13 @@ PlayerWrapper.prototype.setVolume = function (volume) {
     this.vjsPlayer.muted(false);
   }
 };
-       
+
 
 /**
- * Ummute the player.          
+ * Ummute the player.
  */
 PlayerWrapper.prototype.unmute = function () {
-  this.vjsPlayer.muted(false);              
+  this.vjsPlayer.muted(false);
 };
 
   
@@ -531,7 +530,7 @@ PlayerWrapper.prototype.getPlayerHeight = function () {
 };
 
 
-                          
+
 /**
  * @return {Object} The vjs player's options object.
  */
@@ -546,7 +545,7 @@ PlayerWrapper.prototype.getPlayerOptions = function () {
 /**
  * Returns the instance of the player id.
  * @return {string} The player id.
- */  
+ */
 
           
 
@@ -592,7 +591,7 @@ PlayerWrapper.prototype.onAdError = function (adErrorEvent) {
       AdError: errorMessage,
       AdErrorEvent: adErrorEvent
     } });
-};
+};   
 
 /**
  * Handles ad log messages.
@@ -3027,7 +3026,9 @@ SdkImpl$2.prototype.initImaDai = function () {
   this.createAdUiDiv();
   if (this.daiController.getSettings().locale) {
     this.uiSettings.setLocale(this.daiController.getSettings().locale);
+
   }
+
 
   this.streamManager = new google.ima.dai.api.StreamManager(this.streamPlayer, this.adUiDiv, this.uiSettings);
 
@@ -3045,13 +3046,20 @@ SdkImpl$2.prototype.initImaDai = function () {
 
   this.requestStream();
 };
+       
+
+                          
 
 /**
  * Called when the video player has metadata to process.
  * @param {Event!} event The event that triggered this call.
  */
+
+
+
 SdkImpl$2.prototype.onAddTrack = function (event) {
   var _this = this;
+
 
   var track = event.track;
   if (track.kind === 'metadata') {
@@ -3061,13 +3069,16 @@ SdkImpl$2.prototype.onAddTrack = function (event) {
       var _didIteratorError = false;
       var _iteratorError = undefined;
 
+
       try {
+
         for (var _iterator = track.activeCues_[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
           var cue = _step.value;
 
           var metadata = {};
           metadata[cue.value.key] = cue.value.data;
           _this.streamManager.onTimedMetadata(metadata);
+
         }
       } catch (err) {
         _didIteratorError = true;
@@ -3082,7 +3093,7 @@ SdkImpl$2.prototype.onAddTrack = function (event) {
             throw _iteratorError;
           }
         }
-      }
+      }        
     };
   }
 };
@@ -3098,6 +3109,10 @@ SdkImpl$2.prototype.createAdUiDiv = function () {
   this.streamPlayer.parentNode.appendChild(uiDiv);
   this.adUiDiv = uiDiv;
 };
+
+
+
+
 
 /**
  * Called on pause to update the ad UI.
@@ -3410,6 +3425,8 @@ DaiController.prototype.getIsMobile = function () {
   return this.isMobile;
 };
 
+
+
 /**
  * Return whether or not we're in an iOS environment.
  *
@@ -3419,12 +3436,17 @@ DaiController.prototype.getIsIos = function () {
   return this.isIos;
 };
 
+
+
 /**
  * @return {Object!} The html5 player.
  */
 DaiController.prototype.getStreamPlayer = function () {
   return this.playerWrapper.getStreamPlayer();
 };
+
+
+
 
 /**
  * @return {Object!} The video.js player.
@@ -3433,12 +3455,18 @@ DaiController.prototype.getVjsPlayer = function () {
   return this.playerWrapper.getVjsPlayer();
 };
 
+
+
+
 /**
  * Requests the stream.
  */
 DaiController.prototype.requestStream = function () {
   this.sdkImpl.requestStream();
 };
+
+
+
 
 /**
  * Add or modify a setting.
@@ -3450,6 +3478,8 @@ DaiController.prototype.setSetting = function (key, value) {
   this.settings[key] = value;
 };
 
+
+
 /**
  * Called when there is an error loading ads.
  *
@@ -3458,6 +3488,9 @@ DaiController.prototype.setSetting = function (key, value) {
 DaiController.prototype.onErrorLoadingAds = function (adErrorEvent) {
   this.playerWrapper.onAdError(adErrorEvent);
 };
+
+
+
 
 /**
  * Relays ad errors to the player wrapper.
@@ -3468,6 +3501,8 @@ DaiController.prototype.onAdError = function (adErrorEvent) {
   this.playerWrapper.onAdError(adErrorEvent);
 };
 
+
+
 /**
  * Signals player that an ad break has started.
  */
@@ -3475,6 +3510,8 @@ DaiController.prototype.onAdBreakStart = function () {
   this.inAdBreak = true;
   this.playerWrapper.onAdBreakStart();
 };
+
+
 
 /**
  * Signals player that an ad break has ended.
@@ -3484,6 +3521,8 @@ DaiController.prototype.onAdBreakEnd = function () {
   this.playerWrapper.onAdBreakEnd();
 };
 
+
+
 /**
  * Called when the player is disposed.
  */
@@ -3491,6 +3530,8 @@ DaiController.prototype.onPlayerDisposed = function () {
   this.contentAndAdsEndedListeners = [];
   this.sdkImpl.onPlayerDisposed();
 };
+
+
 
 /**
  * Returns if the stream is currently in an ad break.
@@ -3552,6 +3593,7 @@ DaiController.prototype.getPlayerId = function () {
   return this.playerWrapper.getPlayerId();
 };
 
+
 /**
  * @return {boolean} true if we expect that the stream will autoplay. false
  * otherwise.
@@ -3564,16 +3606,20 @@ DaiController.prototype.streamWillAutoplay = function () {
   }
 };
 
+
 /**
  * Triggers an event on the VJS player
  * @param  {string} name The event name.
  * @param  {Object!} data The event data.
  */
+
+
 DaiController.prototype.triggerPlayerEvent = function (name, data) {
   this.playerWrapper.triggerPlayerEvent(name, data);
 };
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 
 /**
  * Copyright 2017 Google Inc.
@@ -3604,8 +3650,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * @struct
  * @final
  */
+
+
 var ImaPlugin = function ImaPlugin(player, options) {
   this.controller = new Controller(player, options);
+
+
 
   /**
    * Listener JSDoc for ESLint. This listener can be passed to
@@ -3613,15 +3663,21 @@ var ImaPlugin = function ImaPlugin(player, options) {
    * @callback listener
    */
 
+
+
   /**
    * Adds a listener that will be called when content and all ads have
    * finished playing.
    * @param {listener} listener The listener to be called when content and ads
    *     complete.
    */
+
+
   this.addContentAndAdsEndedListener = function (listener) {
     this.controller.addContentAndAdsEndedListener(listener);
   }.bind(this);
+
+
 
   /**
    * Adds a listener for the 'contentended' event of the video player. This
@@ -3631,14 +3687,20 @@ var ImaPlugin = function ImaPlugin(player, options) {
    * @param {listener} listener The listener to be called when content
    *     completes.
    */
+
+
   this.addContentEndedListener = function (listener) {
     this.controller.addContentEndedListener(listener);
   }.bind(this);
+
+
 
   /**
    * Callback JSDoc for ESLint. This callback can be passed to addEventListener.
    * @callback callback
    */
+
+
 
   /**
    * Ads an EventListener to the AdsManager. For a list of available events,
@@ -3652,43 +3714,61 @@ var ImaPlugin = function ImaPlugin(player, options) {
     this.controller.addEventListener(event, callback);
   }.bind(this);
 
+
+
   /**
    * Changes the ad tag. You will need to call requestAds after this method
    * for the new ads to be requested.
    * @param {?string} adTag The ad tag to be requested the next time requestAds
    *     is called.
    */
+
+
   this.changeAdTag = function (adTag) {
     this.controller.changeAdTag(adTag);
   }.bind(this);
+
+
 
   /**
    * Returns the instance of the AdsManager.
    * @return {google.ima.AdsManager} The AdsManager being used by the plugin.
    */
+
+
   this.getAdsManager = function () {
     return this.controller.getAdsManager();
   }.bind(this);
+
+
 
   /**
    * Initializes the AdDisplayContainer. On mobile, this must be done as a
    * result of user action.
    */
+
+
   this.initializeAdDisplayContainer = function () {
     this.controller.initializeAdDisplayContainer();
   }.bind(this);
 
+
+
   /**
    * Pauses the ad.
    */
+
+
   this.pauseAd = function () {
     this.controller.pauseAd();
   }.bind(this);
+
 
   /**
    * Called by publishers in manual ad break playback mode to start an ad
    * break.
    */
+
   this.playAdBreak = function () {
     this.controller.playAdBreak();
   }.bind(this);
@@ -3728,6 +3808,9 @@ var ImaPlugin = function ImaPlugin(player, options) {
   this.setContentWithAdTag = function (contentSrc, adTag) {
     this.controller.setContentWithAdTag(contentSrc, adTag);
   }.bind(this);
+
+
+  
 
   /**
    * Sets the content of the video player. You should use this method instead
