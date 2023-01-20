@@ -88,6 +88,9 @@
 	left:50%;
 
 }
+
+
+
 .vjs-brightness .vjs-brightness-bar .bar-level {
 	width:4px;height:50%;position:absolute;bottom:0;background-color:#fff;
 	transform:translateX(-50%);
@@ -136,6 +139,9 @@
 	left:-40px;
 	top:11px;
 }
+
+
+
 .video-js .vjs-filter-saturation:before {
 	content:"\e917";
 	position:absolute;
