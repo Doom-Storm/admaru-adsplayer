@@ -14,10 +14,10 @@
 
 	<script>
 	    var pbjs = pbjs || {};
-	    pbjs.que = pbjs.que || [];
+	    pbjs.que = pbjs.que || [];        
 
 	    var adUnits = [{
-	        code: 'video1',
+	        code: 'admaru',
 	        mediaTypes: {
 	            video: {
 	                context: 'outstream',
@@ -25,13 +25,13 @@
 			mimes: ['video/mp4'],
 			protocols: [1, 2, 3, 4, 5, 6, 7, 8],
 			playbackmethod: [2],
-			skip: 1
+			skip: 5
 	            }
 	        },
 	        bids: [{
-	            bidder: 'appnexus',
+	            bidder: 'appnexus', // Adnetwork name - DFP/spotx/Appnexus/Tremor/pubmatic (letters should be in simple letters)
 	            params: {
-	                placementId: 13232385
+	                placementId: 13232385 // placement id of ads - DFP/spotx/Appnexus/Tremor/pubmatic
 	            }
 	        }]
         }];
@@ -39,9 +39,9 @@
         pbjs.que.push(function() {
             pbjs.addAdUnits(adUnits);
             pbjs.requestBids({
-                timeout: 1000,
+                timeout: 1000, // set auto hide - time in second
                 bidsBackHandler: function(bids) {
-                    var highestCpmBids = pbjs.getHighestCpmBids('video1');
+                    var highestCpmBids = pbjs.getHighestCpmBids('admaru');
                     pbjs.renderAd(document, highestCpmBids[0].adId);
                 }
             });
@@ -58,7 +58,7 @@
 				<p>Other part 11. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
 			</div>
 
-			<div id='video1'>
+			<div id='admaru'>
 				<p>Prebid Outstream Video Ad</p>
             </div>
 
