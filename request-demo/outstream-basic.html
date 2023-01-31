@@ -73,22 +73,12 @@
                         },
                     }
                 },
-                bids: [{ // requests bids from PubMatic partner
-                        bidder: 'pubmatic',
-                        params: {
-                            publisherId: '45710',
-                            videoAdUnit: '2995549',
-                            adSlot: '2995549@640x480',
-                            video: {
-                                skipppable: false,
-                                playback_methods: ['auto_play_sound_off'],
-                                minduration: 5,
-                                maxduration: 30,
-                                mimes: ['video/mp4','video/x-flv'],
-                                placement: 1
-                            }
-                        }
-                    }]
+                bids: [{
+                    bidder: 'appnexus', // Ad network
+                    params: {
+                        placementId: 13232385 // Placement ID
+                    }
+                }]
             }];
 
             pbjs.que.push(function() {
