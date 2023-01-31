@@ -61,35 +61,47 @@
                 code: 'admaru',
                 mediaTypes: {
                     video: {
+			    
+			    //<-- context:-->
+                            //'unknown': 0,
+                            //'pre_roll': 1,
+                            //'mid_roll': 2,
+                            //'post_roll': 3,
+                            //'outstream': 4,
+                            //'in-banner': 5
+			    
                         context: 'outstream',
                         playerSize: [640, 480],
                         mimes: ['video/mp4'],
                         protocols: [1, 2, 3, 4, 5, 6, 7, 8],
-                        playbackmethod: [2],
-                        skip: 1,
+                        playbackmethod: [2], 
+			    
+			    // Playback Method parameters Can use as follows:
+			    //'unknown': 0,
+                            //'auto_play_sound_on': 1,
+                            //'auto_play_sound_off': 2,
+                            //'click_to_play': 3,
+                            //'mouse_over': 4,
+                            //'auto_play_sound_unknown': 5 <- Used the Specific number for load playback method.
+			    
+                        skip: 10,
+			    reminder:
+			    
                         renderer: {
                             render,
                             url: "outstreamrender.js"
                         },
-                    }                                                                        
-                },                                                                                                             
-                bids: [{ // requests bids from PubMatic partner
-                        bidder: 'pubmatic',
-                        params: {
-                            publisherId: '45710',
-                            videoAdUnit: '2995549',
-                            adSlot: '2995549@640x480',
-                            video: {
-                                skipppable: false,
-                                playback_methods: ['auto_play_sound_off'],
-                                minduration: 5,
-                                maxduration: 30,
-                                mimes: ['video/mp4','video/x-flv'],                            
-                                placement: 1
-                            }
-                        }
-                    }]                                                                                                                               
-            }];                                                                                                                                                                                                                                                                                            
+                    }
+                },
+                bids: [{
+			// This should be change/Should be Replace with your Data of Bidder Details
+			
+                    bidder: 'appnexus', // Ad network
+                    params: {
+                        placementId: 13232385 // Placement ID
+                    }
+                }]
+            }];                                                                                                                                                                                                                                                                                    
                                                       
             pbjs.que.push(function() {       
                 pbjs.addAdUnits(adUnits);
